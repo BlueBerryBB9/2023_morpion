@@ -50,10 +50,8 @@ GfxPlayer::~GfxPlayer()
 
 std::optional<unsigned int> GfxPlayer::get_move(char player)
 {
-    _status_text.set_text(std::string{"your turn: "} + player);
-    _status_text_changed = true;
     _move_made.reset();
-    while (_win.isOpen() && !_move_made) {
+    if (_win.isOpen()) {
         if (this->_process_events() == 0)
             return {};
         this->_update_window_if_needed();
@@ -65,6 +63,7 @@ void GfxPlayer::set_player_symbol(char player)
 {
     _status_text.set_text(std::string{"you are player: "} + player);
     _status_text_changed = true;
+    _update_window_if_needed();
 }
 
 void GfxPlayer::set_board_state(const std::array<char, 9> &board)
@@ -85,18 +84,20 @@ unsigned int GfxPlayer::_process_events()
             _win.close();
             return 0;
         }
-        if (event.type == sf::Event::MouseButtonPressed
-            && event.mouseButton.button == sf::Mouse::Left) {
-            int grid_idx
-                = event.mouseButton.x / 100 + (event.mouseButton.y / 100) * 3;
-            std::cout << "idx: " << grid_idx << std::endl;
-            if (grid_idx > 8) {
-                _status_text.set_text("please click on the grid");
-            } else {
-                _status_text.set_text("");
-                _move_made = grid_idx;
+        if (_is_its_turn) {
+            if (event.type == sf::Event::MouseButtonPressed
+                && event.mouseButton.button == sf::Mouse::Left) {
+                int grid_idx = event.mouseButton.x / 100
+                               + (event.mouseButton.y / 100) * 3;
+                std::cout << "idx: " << grid_idx << std::endl;
+                if (grid_idx > 8) {
+                    _status_text.set_text("please click on the grid");
+                } else {
+                    _status_text.set_text("");
+                    _move_made = grid_idx;
+                }
+                _status_text_changed = true;
             }
-            _status_text_changed = true;
         }
     }
     return 1;
@@ -105,4 +106,20 @@ unsigned int GfxPlayer::_process_events()
 bool GfxPlayer::is_done()
 {
     return !_win.isOpen();
+}
+
+void GfxPlayer::ask_for_move(char sym)
+{
+    _status_text.set_text(std::string{"your turn: "} + sym);
+    _status_text_changed = true;
+}
+
+void GfxPlayer::set_turn(bool your_turn)
+{
+    _is_its_turn = your_turn;
+}
+
+void GfxPlayer::swap_turn()
+{
+    _is_its_turn = !_is_its_turn;
 }

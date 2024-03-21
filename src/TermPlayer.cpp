@@ -1,4 +1,5 @@
 #include "TermPlayer.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #include <iostream>
 
 TermPlayer::TermPlayer()
@@ -56,4 +57,17 @@ void TermPlayer::set_board_state(const std::array<char, 9> &board)
 bool TermPlayer::is_done()
 {
     return true;
+}
+
+void TermPlayer::ask_for_move(char sym)
+{}
+
+void TermPlayer::set_turn(bool your_turn)
+{
+    _is_its_turn = your_turn;
+}
+
+void TermPlayer::swap_turn()
+{
+    _is_its_turn = !_is_its_turn;
 }

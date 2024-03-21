@@ -7,7 +7,7 @@ public:
     enum class StartWith { PX, PO };
     MorpionGame(StartWith start_player = StartWith::PX);
 
-    enum class Status : int { PXTurn, POTurn, PXWin, POWin, Draw, UError };
+    enum class Status : int { PXTurn, POTurn, PXWin, POWin, Draw };
     static constexpr char P1_CHAR = 'x';
     static constexpr char P2_CHAR = 'o';
 

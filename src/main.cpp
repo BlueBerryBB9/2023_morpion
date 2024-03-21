@@ -1,3 +1,4 @@
+#include <array>
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -41,22 +42,6 @@ void report_win(MorpionGame &game, IPlayer &x, IPlayer &o)
     }
 }
 
-void make_them_play(MorpionGame &game, IPlayer &player, char sym)
-{
-    bool played{false};
-
-    player.set_board_state(game.array());
-    while (!played) {
-        if (player.is_done())
-            return;
-        auto move{player.get_move(sym)};
-        if (move) {
-            played = game.play(sym, *move);
-        }
-    }
-    player.set_board_state(game.array());
-}
-
 using player_ptr = std::unique_ptr<IPlayer>;
 
 void report_end(std::array<player_ptr, 2> &players)
@@ -72,6 +57,37 @@ void report_end(std::array<player_ptr, 2> &players)
     }
 }
 
+int make_them_play(MorpionGame &game, std::array<player_ptr, 2> &players,
+                   int current_player)
+{
+    bool played{false};
+
+    if (players[0]->is_done() || players[1]->is_done()) {
+        report_end(players);
+        return 1;
+    }
+    players[!current_player]->set_player_symbol(current_player ? 'x' : 'o');
+
+    while (!played) {
+        players[current_player]->ask_for_move(current_player ? 'o' : 'x');
+
+        if (players[0]->is_done() || players[1]->is_done())
+            return 1;
+
+        players[!current_player]->get_move(current_player ? 'o' : 'x');
+
+        auto move{
+            players[current_player]->get_move(current_player ? 'o' : 'x')};
+        if (move)
+            played = game.play(current_player ? 'o' : 'x', *move);
+    }
+
+    players[0]->set_board_state(game.array());
+    players[1]->set_board_state(game.array());
+
+    return 0;
+}
+
 int main(void)
 {
     MorpionGame               game;
@@ -81,16 +97,17 @@ int main(void)
 
     players[0]->set_player_symbol('x');
     players[0]->set_board_state(game.array());
+    players[0]->set_turn(true);
     players[1]->set_player_symbol('o');
     players[1]->set_board_state(game.array());
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     while (!game.done()) {
-        if (players[0]->is_done() || players[1]->is_done()) {
+        if (make_them_play(game, players, current_player)) {
             report_end(players);
             return 1;
         }
-        make_them_play(game, *players[current_player],
-                       (current_player) ? 'o' : 'x');
+        players[0]->swap_turn();
+        players[1]->swap_turn();
         current_player = !current_player;
     }
     report_win(game, *players[0], *players[1]);

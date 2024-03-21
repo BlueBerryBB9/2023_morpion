@@ -17,6 +17,9 @@ public:
     void                        set_player_symbol(char player) override;
     void set_board_state(const std::array<char, 9> &board) override;
     bool is_done() override;
+    void ask_for_move(char sym) override;
+    void set_turn(bool your_turn) override;
+    void swap_turn() override;
 
 private:
     unsigned int _process_events();
@@ -29,4 +32,5 @@ private:
     GridLines                   _grid_lines;
     TextStatus                  _status_text;
     bool                        _status_text_changed;
+    bool                        _is_its_turn{false};
 };
