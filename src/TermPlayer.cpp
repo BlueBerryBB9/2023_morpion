@@ -17,7 +17,7 @@ void TermPlayer::set_draw(void)
     std::cout << "No one wins" << std::endl;
 }
 
-std::optional<unsigned int> &TermPlayer::get_move(char player)
+std::optional<unsigned int> TermPlayer::get_move(char player)
 {
     std::cout << "Your turn: " << player << std::endl;
     std::cout << "Index between 0~8: ";
@@ -51,4 +51,9 @@ void TermPlayer::set_board_state(const std::array<char, 9> &board)
         }
         idx += 1;
     }
+}
+
+bool TermPlayer::is_done()
+{
+    return true;
 }

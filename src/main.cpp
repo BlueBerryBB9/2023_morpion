@@ -1,3 +1,4 @@
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -46,6 +47,8 @@ void make_them_play(MorpionGame &game, IPlayer &player, char sym)
 
     player.set_board_state(game.array());
     while (!played) {
+        if (player.is_done())
+            return;
         auto move{player.get_move(sym)};
         if (move) {
             played = game.play(sym, *move);
@@ -56,10 +59,23 @@ void make_them_play(MorpionGame &game, IPlayer &player, char sym)
 
 using player_ptr = std::unique_ptr<IPlayer>;
 
+void report_end(std::array<player_ptr, 2> &players)
+{
+    if (players[0]->is_done() && players[1]->is_done()) {
+        std::cout << "Error : All players exited";
+    } else if (players[0]->is_done() && !players[1]->is_done()) {
+        std::cout << "Error : Player " << MorpionGame::P1_CHAR << " exited !"
+                  << std::endl;
+    } else if (!players[0]->is_done() && players[1]->is_done()) {
+        std::cout << "Error : Player " << MorpionGame::P2_CHAR << " exited !"
+                  << std::endl;
+    }
+}
+
 int main(void)
 {
     MorpionGame               game;
-    std::array<player_ptr, 2> players{player_ptr(new TermPlayer),
+    std::array<player_ptr, 2> players{player_ptr(new GfxPlayer),
                                       player_ptr(new GfxPlayer)};
     unsigned int              current_player{0};
 
@@ -67,11 +83,16 @@ int main(void)
     players[0]->set_board_state(game.array());
     players[1]->set_player_symbol('o');
     players[1]->set_board_state(game.array());
-    while (!game.done() && !players[0]->is_done() && !players[1]->is_done()) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    while (!game.done()) {
+        if (players[0]->is_done() || players[1]->is_done()) {
+            report_end(players);
+            return 1;
+        }
         make_them_play(game, *players[current_player],
                        (current_player) ? 'o' : 'x');
         current_player = !current_player;
     }
     report_win(game, *players[0], *players[1]);
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 }

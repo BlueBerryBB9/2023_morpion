@@ -1,4 +1,6 @@
 #include "GfxPlayer.hpp"
+#include <iostream>
+#include <optional>
 
 GfxPlayer::GfxPlayer()
     : _win{sf::VideoMode(300, 350), "Tic Tac Toe"},
@@ -39,13 +41,21 @@ void GfxPlayer::_update_window_if_needed()
     }
 }
 
-std::optional<unsigned int> &GfxPlayer::get_move(char player)
+GfxPlayer::~GfxPlayer()
+{
+    if (_win.isOpen()) {
+        _win.close();
+    }
+}
+
+std::optional<unsigned int> GfxPlayer::get_move(char player)
 {
     _status_text.set_text(std::string{"your turn: "} + player);
     _status_text_changed = true;
     _move_made.reset();
     while (_win.isOpen() && !_move_made) {
-        this->_process_events();
+        if (this->_process_events() == 0)
+            return {};
         this->_update_window_if_needed();
     }
     return _move_made;
@@ -66,14 +76,15 @@ void GfxPlayer::set_board_state(const std::array<char, 9> &board)
 
 unsigned int GfxPlayer::_process_events()
 {
-    unsigned int n_processed{0};
-    sf::Event    event;
+    sf::Event event;
 
     while (_win.pollEvent(event)) {
         if (event.type == sf::Event::Closed
             || (event.type == sf::Event::KeyPressed
-                && event.key.code == sf::Keyboard::Escape))
+                && event.key.code == sf::Keyboard::Escape)) {
             _win.close();
+            return 0;
+        }
         if (event.type == sf::Event::MouseButtonPressed
             && event.mouseButton.button == sf::Mouse::Left) {
             int grid_idx
@@ -87,9 +98,8 @@ unsigned int GfxPlayer::_process_events()
             }
             _status_text_changed = true;
         }
-        n_processed += 1;
     }
-    return n_processed;
+    return 1;
 }
 
 bool GfxPlayer::is_done()
