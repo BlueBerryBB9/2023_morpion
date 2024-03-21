@@ -1,4 +1,5 @@
 #pragma once
+#include <future>
 #include <optional>
 #include "IPlayer.hpp"
 
@@ -19,4 +20,5 @@ public:
 private:
     std::optional<unsigned int> _move_made;
     bool                        _is_its_turn;
+    std::future<int>            _future;
 };

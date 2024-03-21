@@ -90,7 +90,7 @@ int make_them_play(MorpionGame &game, std::array<player_ptr, 2> &players,
 int main(void)
 {
     MorpionGame               game;
-    std::array<player_ptr, 2> players{player_ptr(new GfxPlayer),
+    std::array<player_ptr, 2> players{player_ptr(new TermPlayer),
                                       player_ptr(new GfxPlayer)};
     unsigned int              current_player{0};
 
