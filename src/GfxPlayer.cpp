@@ -7,7 +7,7 @@ GfxPlayer::GfxPlayer()
       _grid_text_changed{true},
       _status_text_changed{true}
 {
-    _win.setFramerateLimit(5);
+    _win.setFramerateLimit(10);
     _grid_text.draw_on(_win);
     _grid_lines.draw_on(_win);
     _status_text.set_text("hello :)");
@@ -54,9 +54,9 @@ std::optional<unsigned int> GfxPlayer::get_move(char player)
     if (_win.isOpen()) {
         if (this->_process_events() == 0)
             return {};
-        this->_update_window_if_needed();
+        return _move_made;
     }
-    return _move_made;
+    return {};
 }
 
 void GfxPlayer::set_player_symbol(char player)
@@ -112,6 +112,7 @@ void GfxPlayer::ask_for_move(char sym)
 {
     _status_text.set_text(std::string{"your turn: "} + sym);
     _status_text_changed = true;
+    _update_window_if_needed();
 }
 
 void GfxPlayer::set_turn(bool your_turn)
