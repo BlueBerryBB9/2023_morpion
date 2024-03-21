@@ -69,6 +69,7 @@ int make_them_play(MorpionGame &game, std::array<player_ptr, 2> &players,
     players[!current_player]->set_player_symbol(current_player ? 'x' : 'o');
     players[current_player]->ask_for_move(current_player ? 'o' : 'x');
     while (!played) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         if (players[0]->is_done() || players[1]->is_done())
             return 1;
 
