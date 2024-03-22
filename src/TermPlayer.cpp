@@ -1,8 +1,10 @@
 #include "TermPlayer.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <chrono>
+#include <cstdio>
 #include <future>
 #include <iostream>
+#include <sstream>
 
 TermPlayer::TermPlayer()
 {}
@@ -35,6 +37,7 @@ std::optional<unsigned int> TermPlayer::get_move(char player)
         == std::future_status::ready) {
         _move_made = _future.get();
 
+        _can_ask_again = true;
         return _move_made;
     }
 
@@ -63,18 +66,28 @@ void TermPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool TermPlayer::is_done()
 {
-    return !std::cin;
+    return std::cin.eof();
 }
 
 void TermPlayer::ask_for_move(char sym)
 {
-    std::cout << "Your turn: " << sym << std::endl;
-    std::cout << "Index between 0~8: ";
-    _future = std::async(std::launch::async, [&] {
-        int answer;
-        std::cin >> answer;
-        return answer;
-    });
+    if (_can_ask_again) {
+        std::cout << "Your turn: " << sym << std::endl;
+        std::cout << "Index between 0~8: ";
+        _future        = std::async(std::launch::async, [&] {
+            int         ians{9};
+            std::string answer;
+
+            getline(std::cin, answer);
+            std::stringstream ss(answer);
+            if (!(ss >> ians)) {
+                return 9;
+            }
+
+            return ians;
+        });
+        _can_ask_again = false;
+    }
 }
 
 void TermPlayer::set_turn(bool your_turn)

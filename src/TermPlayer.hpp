@@ -21,4 +21,5 @@ private:
     std::optional<unsigned int> _move_made;
     bool                        _is_its_turn;
     std::future<int>            _future;
+    bool                        _can_ask_again{true};
 };
