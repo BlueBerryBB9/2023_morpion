@@ -1,4 +1,4 @@
-#include "TermPlayer.hpp"
+#include "../include/TermPlayer.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <chrono>
 #include <cstdio>
@@ -6,18 +6,15 @@
 #include <iostream>
 #include <sstream>
 
-TermPlayer::TermPlayer()
-{}
-
 TermPlayer::~TermPlayer()
 {
     if (_future.valid())
         std::cout << "Press enter for reader to stop" << std::endl;
 }
 
-void TermPlayer::set_win(char player)
+void TermPlayer::set_win()
 {
-    std::cout << "Player " << player << " wins!" << std::endl;
+    std::cout << "Player " << _sym << " wins!" << std::endl;
 }
 
 void TermPlayer::set_draw(void)
@@ -25,7 +22,7 @@ void TermPlayer::set_draw(void)
     std::cout << "No one wins" << std::endl;
 }
 
-std::optional<unsigned int> TermPlayer::get_move(char player)
+std::optional<unsigned int> TermPlayer::get_move()
 {
     if (is_done())
         return {};
@@ -42,11 +39,6 @@ std::optional<unsigned int> TermPlayer::get_move(char player)
     }
 
     return {};
-}
-
-void TermPlayer::set_player_symbol(char player)
-{
-    std::cout << "You are player: " << player << std::endl;
 }
 
 void TermPlayer::set_board_state(const std::array<char, 9> &board)
@@ -69,10 +61,10 @@ bool TermPlayer::is_done()
     return std::cin ? false : true;
 }
 
-void TermPlayer::ask_for_move(char sym)
+void TermPlayer::ask_for_move()
 {
     if (_can_ask_again) {
-        std::cout << "Your turn: " << sym << std::endl;
+        std::cout << "Your turn: " << _sym << std::endl;
         std::cout << "Index between 0~8: ";
         _future        = std::async(std::launch::async, [&] {
             int         ians{9};
@@ -97,5 +89,16 @@ void TermPlayer::set_turn(bool your_turn)
 
 void TermPlayer::swap_turn()
 {
+    _move_made.reset();
     _is_its_turn = !_is_its_turn;
+}
+
+void TermPlayer::set_player_symbol()
+{
+    std::cout << "You are player: " << _sym << std::endl;
+}
+
+char TermPlayer::get_sym()
+{
+    return _sym;
 }

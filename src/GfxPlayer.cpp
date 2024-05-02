@@ -1,11 +1,12 @@
-#include "GfxPlayer.hpp"
+#include "../include/GfxPlayer.hpp"
 #include <iostream>
 #include <optional>
 
-GfxPlayer::GfxPlayer()
+GfxPlayer::GfxPlayer(char sym)
     : _win{sf::VideoMode(300, 350), "Tic Tac Toe"},
       _grid_text_changed{true},
-      _status_text_changed{true}
+      _status_text_changed{true},
+      _sym{sym}
 {
     _win.setFramerateLimit(10);
     _grid_text.draw_on(_win);
@@ -14,14 +15,14 @@ GfxPlayer::GfxPlayer()
     _status_text.draw_on(_win);
 }
 
-void GfxPlayer::set_win(char player)
+void GfxPlayer::set_win()
 {
-    _status_text.set_text(std::string{"winner: "} + player);
+    _status_text.set_text(std::string{"winner: "} + _sym);
     _status_text_changed = true;
     _update_window_if_needed();
 }
 
-void GfxPlayer::set_draw(void)
+void GfxPlayer::set_draw()
 {
     _status_text.set_text("no one wins");
     _status_text_changed = true;
@@ -30,15 +31,13 @@ void GfxPlayer::set_draw(void)
 
 void GfxPlayer::_update_window_if_needed()
 {
-    if (_grid_text_changed || _status_text_changed) {
-        _win.clear();
-        _grid_lines.draw_on(_win);
-        _grid_text.draw_on(_win);
-        _status_text.draw_on(_win);
-        _status_text_changed = false;
-        _grid_text_changed   = false;
-        _win.display();
-    }
+    _win.clear();
+    _grid_lines.draw_on(_win);
+    _grid_text.draw_on(_win);
+    _status_text.draw_on(_win);
+    _status_text_changed = false;
+    _grid_text_changed   = false;
+    _win.display();
 }
 
 GfxPlayer::~GfxPlayer()
@@ -48,22 +47,9 @@ GfxPlayer::~GfxPlayer()
     }
 }
 
-std::optional<unsigned int> GfxPlayer::get_move(char player)
+std::optional<unsigned int> GfxPlayer::get_move()
 {
-    _move_made.reset();
-    if (_win.isOpen()) {
-        if (this->_process_events() == 0)
-            return {};
-        return _move_made;
-    }
-    return {};
-}
-
-void GfxPlayer::set_player_symbol(char player)
-{
-    _status_text.set_text(std::string{"you are player: "} + player);
-    _status_text_changed = true;
-    _update_window_if_needed();
+    return (_move_made ? _move_made : std::nullopt);
 }
 
 void GfxPlayer::set_board_state(const std::array<char, 9> &board)
@@ -73,7 +59,7 @@ void GfxPlayer::set_board_state(const std::array<char, 9> &board)
     _update_window_if_needed();
 }
 
-unsigned int GfxPlayer::_process_events()
+void GfxPlayer::process_events()
 {
     sf::Event event;
 
@@ -82,7 +68,7 @@ unsigned int GfxPlayer::_process_events()
             || (event.type == sf::Event::KeyPressed
                 && event.key.code == sf::Keyboard::Escape)) {
             _win.close();
-            return 0;
+            return;
         }
         if (_is_its_turn) {
             if (event.type == sf::Event::MouseButtonPressed
@@ -96,11 +82,11 @@ unsigned int GfxPlayer::_process_events()
                     _status_text.set_text("");
                     _move_made = grid_idx;
                 }
-                _status_text_changed = true;
+                _update_window_if_needed();
             }
         }
     }
-    return 1;
+    return;
 }
 
 bool GfxPlayer::is_done()
@@ -108,10 +94,9 @@ bool GfxPlayer::is_done()
     return !_win.isOpen();
 }
 
-void GfxPlayer::ask_for_move(char sym)
+void GfxPlayer::ask_for_move()
 {
-    _status_text.set_text(std::string{"your turn: "} + sym);
-    _status_text_changed = true;
+    _status_text.set_text(std::string{"your turn: "} + _sym);
     _update_window_if_needed();
 }
 
@@ -122,5 +107,17 @@ void GfxPlayer::set_turn(bool your_turn)
 
 void GfxPlayer::swap_turn()
 {
+    _move_made.reset();
     _is_its_turn = !_is_its_turn;
+}
+
+void GfxPlayer::set_player_symbol()
+{
+    _status_text.set_text(std::string{"you are player: "} + _sym);
+    _update_window_if_needed();
+}
+
+char GfxPlayer::get_sym()
+{
+    return _sym;
 }

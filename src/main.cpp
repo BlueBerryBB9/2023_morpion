@@ -2,14 +2,15 @@
 #include <chrono>
 #include <cstdio>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <thread>
 #include <unistd.h>
 #include <unordered_map>
-#include "GfxPlayer.hpp"
-#include "IPlayer.hpp"
-#include "MorpionGame.hpp"
-#include "TermPlayer.hpp"
+#include "../include/GfxPlayer.hpp"
+#include "../include/IPlayer.hpp"
+#include "../include/MorpionGame.hpp"
+#include "../include/TermPlayer.hpp"
 
 using func_on_2_players = std::function<void(IPlayer &, IPlayer &)>;
 
@@ -21,13 +22,13 @@ const std::unordered_map<MorpionGame::Status, func_on_2_players> STATUS_MAP = {
      }},
     {MorpionGame::Status::PXWin,
      [](IPlayer &x, IPlayer &o) {
-         x.set_win('x');
-         o.set_win('x');
+         x.set_win();
+         o.set_win();
      }},
     {MorpionGame::Status::POWin,
      [](IPlayer &x, IPlayer &o) {
-         x.set_win('o');
-         o.set_win('o');
+         x.set_win();
+         o.set_win();
      }},
 };
 
@@ -68,23 +69,22 @@ int make_them_play(MorpionGame &game, std::array<player_ptr, 2> &players,
         return 1;
     }
 
-    players[!current_player]->set_player_symbol(current_player ? 'x' : 'o');
-    players[current_player]->ask_for_move(current_player ? 'o' : 'x');
+    players[!current_player]->set_player_symbol();
+    players[current_player]->ask_for_move();
 
     while (!played) {
-        players[current_player]->ask_for_move(current_player ? 'o' : 'x');
+        // players[current_player]->ask_for_move(current_player ? 'o' : 'x');
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         if (players[0]->is_done() || players[1]->is_done()) {
             return 1;
         }
 
-        players[!current_player]->get_move(current_player ? 'o' : 'x');
+        players[!current_player]->get_move();
 
-        auto move{
-            players[current_player]->get_move(current_player ? 'o' : 'x')};
+        auto move{players[current_player]->get_move()};
 
         if (move)
-            played = game.play(current_player ? 'o' : 'x', *move);
+            played = game.play(players[current_player]->get_sym(), *move);
     }
 
     players[0]->set_board_state(game.array());
@@ -95,20 +95,18 @@ int make_them_play(MorpionGame &game, std::array<player_ptr, 2> &players,
 
 int main(void)
 {
+    unsigned int current_player{0};
+    // OneMorpionGame            g;
     MorpionGame               game;
-    std::array<player_ptr, 2> players{player_ptr(new TermPlayer),
-                                      player_ptr(new GfxPlayer)};
-    unsigned int              current_player{0};
+    std::array<player_ptr, 2> players{player_ptr(new TermPlayer(game.P1_CHAR)),
+                                      player_ptr(new GfxPlayer(game.P2_CHAR))};
 
-    players[0]->set_player_symbol('x');
     players[0]->set_board_state(game.array());
     players[0]->set_turn(true);
-    players[1]->set_player_symbol('o');
     players[1]->set_board_state(game.array());
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
     while (!game.done()) {
+        // if (g.make_them_play(game, players, current_player)) {
         if (make_them_play(game, players, current_player)) {
             report_end(players);
             return 1;
