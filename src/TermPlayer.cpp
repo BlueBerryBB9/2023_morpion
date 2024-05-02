@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <future>
 #include <iostream>
+#include <optional>
 #include <sstream>
 
 TermPlayer::~TermPlayer()
@@ -24,21 +25,21 @@ void TermPlayer::set_draw(void)
 
 std::optional<unsigned int> TermPlayer::get_move()
 {
-    if (is_done())
-        return {};
+    return (_move_made ? _move_made : std::nullopt);
+}
 
+void TermPlayer::process_events()
+{
+    _move_made.reset();
     if (!_is_its_turn)
-        return {};
-
+        return;
+    if (_can_ask_again)
+        ask_for_move();
     if (_future.wait_for(std::chrono::milliseconds(100))
         == std::future_status::ready) {
-        _move_made = _future.get();
-
+        _move_made     = _future.get();
         _can_ask_again = true;
-        return _move_made;
     }
-
-    return {};
 }
 
 void TermPlayer::set_board_state(const std::array<char, 9> &board)
@@ -63,23 +64,25 @@ bool TermPlayer::is_done()
 
 void TermPlayer::ask_for_move()
 {
-    if (_can_ask_again) {
-        std::cout << "Your turn: " << _sym << std::endl;
-        std::cout << "Index between 0~8: ";
-        _future        = std::async(std::launch::async, [&] {
-            int         ians{9};
-            std::string answer;
+    std::cout << "Your turn: " << _sym << std::endl;
+    std::cout << "Index between 0~8: ";
+    std::cin.clear();
 
-            getline(std::cin, answer);
-            std::stringstream ss(answer);
-            if (!(ss >> ians)) {
-                return 9;
-            }
+    _future        = std::async(std::launch::async, [&] {
+        int         ians{9};
+        std::string answer;
 
-            return ians;
-        });
-        _can_ask_again = false;
-    }
+        std::cin.clear();
+        getline(std::cin, answer);
+        std::cin.clear();
+        std::stringstream ss(answer);
+
+        if (!(ss >> ians))
+            return 9;
+
+        return ians;
+    });
+    _can_ask_again = false;
 }
 
 void TermPlayer::set_turn(bool your_turn)

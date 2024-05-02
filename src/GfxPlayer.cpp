@@ -15,6 +15,13 @@ GfxPlayer::GfxPlayer(char sym)
     _status_text.draw_on(_win);
 }
 
+GfxPlayer::~GfxPlayer()
+{
+    if (_win.isOpen()) {
+        _win.close();
+    }
+}
+
 void GfxPlayer::set_win()
 {
     _status_text.set_text(std::string{"winner: "} + _sym);
@@ -40,13 +47,6 @@ void GfxPlayer::_update_window_if_needed()
     _win.display();
 }
 
-GfxPlayer::~GfxPlayer()
-{
-    if (_win.isOpen()) {
-        _win.close();
-    }
-}
-
 std::optional<unsigned int> GfxPlayer::get_move()
 {
     return (_move_made ? _move_made : std::nullopt);
@@ -55,7 +55,7 @@ std::optional<unsigned int> GfxPlayer::get_move()
 void GfxPlayer::set_board_state(const std::array<char, 9> &board)
 {
     _grid_text.set_from(board);
-    _grid_text_changed = true;
+    // _grid_text_changed = true;
     _update_window_if_needed();
 }
 
@@ -71,15 +71,16 @@ void GfxPlayer::process_events()
             return;
         }
         if (_is_its_turn) {
+            _move_made.reset();
             if (event.type == sf::Event::MouseButtonPressed
                 && event.mouseButton.button == sf::Mouse::Left) {
                 int grid_idx = event.mouseButton.x / 100
                                + (event.mouseButton.y / 100) * 3;
-                std::cout << "idx: " << grid_idx << std::endl;
+                // std::cout << "idx: " << grid_idx << std::endl;
                 if (grid_idx > 8) {
                     _status_text.set_text("please click on the grid");
                 } else {
-                    _status_text.set_text("");
+                    // _status_text.set_text("");
                     _move_made = grid_idx;
                 }
                 _update_window_if_needed();
