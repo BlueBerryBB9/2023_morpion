@@ -66,7 +66,7 @@ void TermPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool TermPlayer::is_done()
 {
-    return std::cin.eof();
+    return std::cin ? false : true;
 }
 
 void TermPlayer::ask_for_move(char sym)
