@@ -18,7 +18,8 @@ SRCS		=	src/MorpionGame.cpp \
                 src/gfx/TextStatus.cpp \
                 src/gfx/GridLines.cpp \
                 src/GfxPlayer.cpp \
-                src/TermPlayer.cpp
+                src/TermPlayer.cpp \
+                src/OneMorpionGame.cpp
 
 OBJ_MAIN	=	$(MAIN:.cpp=.o)
 

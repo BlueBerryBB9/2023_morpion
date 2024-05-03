@@ -11,8 +11,14 @@ class OneMorpionGame {
 public:
     OneMorpionGame(std::array<player_ptr, 2> players);
 
-    void init();
-    int  make_them_play();
+    void         init();
+    void         report_end();
+    void         report_win();
+    int          make_them_play();
+    MorpionGame &get_game()
+    {
+        return _game;
+    };
 
 private:
     MorpionGame               _game;

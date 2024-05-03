@@ -1,7 +1,27 @@
-#pragma once
-
 #include "../include/OneMorpionGame.hpp"
 #include <array>
+#include <functional>
+#include <iostream>
+
+using func_on_2_players = std::function<void(IPlayer &, IPlayer &)>;
+
+const std::unordered_map<MorpionGame::Status, func_on_2_players> STATUS_MAP = {
+    {MorpionGame::Status::Draw,
+     [](IPlayer &x, IPlayer &o) {
+         x.set_draw();
+         o.set_draw();
+     }},
+    {MorpionGame::Status::PXWin,
+     [](IPlayer &x, IPlayer &o) {
+         x.set_win();
+         o.set_win();
+     }},
+    {MorpionGame::Status::POWin,
+     [](IPlayer &x, IPlayer &o) {
+         x.set_win();
+         o.set_win();
+     }},
+};
 
 OneMorpionGame::OneMorpionGame(std::array<player_ptr, 2> players)
     : _players{std::move(players)}
@@ -51,4 +71,26 @@ int OneMorpionGame::make_them_play()
 }
 
 void OneMorpionGame::report_end()
-{}
+{
+    if (_players[0]->is_done() && _players[1]->is_done()) {
+        std::cout << "Error : All _players exited";
+    } else if (_players[0]->is_done() && !_players[1]->is_done()) {
+        std::cout << "Error : Player " << MorpionGame::P1_CHAR << " exited !"
+                  << std::endl;
+    } else if (!_players[0]->is_done() && _players[1]->is_done()) {
+        std::cout << "Error : Player " << MorpionGame::P2_CHAR << " exited !"
+                  << std::endl;
+    }
+}
+
+void OneMorpionGame::report_win()
+{
+    auto status{_game.status()};
+    auto found_iter{STATUS_MAP.find(status)};
+
+    if (found_iter != STATUS_MAP.end()) {
+        found_iter->second(*_players[0], *_players[1]);
+    } else {
+        std::cerr << "the game hasn't ended properly\n";
+    }
+}
