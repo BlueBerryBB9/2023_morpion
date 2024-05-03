@@ -1,7 +1,6 @@
 #include "../include/TermPlayer.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <chrono>
-#include <cstdio>
 #include <future>
 #include <iostream>
 #include <optional>
@@ -59,7 +58,7 @@ void TermPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool TermPlayer::is_done()
 {
-    return std::cin ? false : true;
+    return std::cin.eof();
 }
 
 void TermPlayer::ask_for_move()
@@ -74,7 +73,6 @@ void TermPlayer::ask_for_move()
 
         std::cin.clear();
         getline(std::cin, answer);
-        std::cin.clear();
         std::stringstream ss(answer);
 
         if (!(ss >> ians))
