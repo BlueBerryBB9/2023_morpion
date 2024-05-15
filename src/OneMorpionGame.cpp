@@ -29,7 +29,7 @@ OneMorpionGame::OneMorpionGame(std::array<player_ptr, 2> players)
 
 void OneMorpionGame::init()
 {
-    _current_player = 0;
+    _current_player = (_game.status() == MorpionGame::Status::PXTurn ? 0 : 1);
     _players[0]->set_board_state(_game.array());
     _players[1]->set_board_state(_game.array());
     if (_game.status() == MorpionGame::Status::PXTurn)
