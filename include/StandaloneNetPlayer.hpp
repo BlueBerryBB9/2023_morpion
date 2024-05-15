@@ -2,7 +2,7 @@
 
 #include "./IPlayer.hpp"
 
-class StandaloneNetPlayer : IPlayer {
+class StandaloneNetPlayer : public IPlayer {
 public:
     StandaloneNetPlayer(char sym);
     ~StandaloneNetPlayer();
