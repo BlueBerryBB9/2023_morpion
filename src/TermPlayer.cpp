@@ -77,20 +77,11 @@ void TermPlayer::ask_for_move()
         std::string answer;
 
         std::cin.clear();
-        // getline(std::cin, answer);
-        // std::stringstream ss(answer);
+        getline(std::cin, answer);
+        std::stringstream ss(answer);
 
-        // if (!(ss >> ians))
-        //     return 9;
-        while (!(std::cin >> ians)) {
-            if (std::cin.eof()) {
-                std::cout << "eof detected\n";
-                return ians;
-            }
-            // std::cin.clear(std::cin.rdstate() & ~std::ios::failbit);
-            std::cout << "Your turn: " << _sym << std::endl;
-            std::cout << "Index between 0~8: ";
-        }
+        if (!(ss >> ians))
+            return 9;
 
         return ians;
     });
