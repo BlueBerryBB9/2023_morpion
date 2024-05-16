@@ -41,14 +41,17 @@ void StandaloneNetPlayer::_send_on_sock(std::string str)
 
 std::string StandaloneNetPlayer::_receive_on_sock()
 {
-    char       *str;
-    std::size_t bytes_read;
+    // NEED TO MODIFY THIS SO I CAN USE PACKET
+    // char *str;
+    // // std::size_t bytes_read;
+    //
+    // str = new char[30];
+    // while (_sock.receive()) {
+    //
+    // }
+    // str[bytes_read] = '\0';
 
-    str = new char[30];
-    _sock.receive(str, 206, bytes_read);
-    str[bytes_read] = '\0';
-
-    return std::string(str);
+    return std::string("nothing for now");
 }
 
 void StandaloneNetPlayer::set_win()
