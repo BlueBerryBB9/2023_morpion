@@ -15,15 +15,8 @@ int main(void)
     OneMorpionGame g{{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
                       player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
 
-    g.init();
-
-    while (!g.get_game().done()) {
+    while (!g.is_done()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        // if (g.make_them_play(game, players, current_player)) {
-        if (g.make_them_play()) {
-            g.report_end();
-            return 1;
-        }
+        g.run_once();
     }
-    g.report_win();
 }

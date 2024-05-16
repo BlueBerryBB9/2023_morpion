@@ -17,9 +17,14 @@ void TermPlayer::set_win()
     std::cout << "Player " << _sym << " wins!" << std::endl;
 }
 
-void TermPlayer::set_draw(void)
+void TermPlayer::set_draw()
 {
     std::cout << "No one wins" << std::endl;
+}
+
+void TermPlayer::set_lose()
+{
+    std::cout << "You lose !" << std::endl;
 }
 
 std::optional<unsigned int> TermPlayer::get_move()
@@ -58,7 +63,7 @@ void TermPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool TermPlayer::is_done()
 {
-    return std::cin.eof();
+    return !std::cin;
 }
 
 void TermPlayer::ask_for_move()
@@ -72,11 +77,20 @@ void TermPlayer::ask_for_move()
         std::string answer;
 
         std::cin.clear();
-        getline(std::cin, answer);
-        std::stringstream ss(answer);
+        // getline(std::cin, answer);
+        // std::stringstream ss(answer);
 
-        if (!(ss >> ians))
-            return 9;
+        // if (!(ss >> ians))
+        //     return 9;
+        while (!(std::cin >> ians)) {
+            if (std::cin.eof()) {
+                std::cout << "eof detected\n";
+                return ians;
+            }
+            // std::cin.clear(std::cin.rdstate() & ~std::ios::failbit);
+            std::cout << "Your turn: " << _sym << std::endl;
+            std::cout << "Index between 0~8: ";
+        }
 
         return ians;
     });

@@ -13,6 +13,9 @@ public:
     virtual void set_draw() = 0;
     // Server: "SET_DRAW"
 
+    virtual void set_lose() = 0;
+    // Server: "SET_DRAW"
+
     virtual std::optional<unsigned int> get_move() = 0;
 
     virtual void set_player_symbol() = 0;
@@ -23,8 +26,6 @@ public:
     // (e.g. : "SET_BOARD_STATE x.o..oxx.")
 
     virtual bool is_done() = 0;
-    // Server: "IS_DONE"
-    // Client: "DONE " + ("true" or "false")
 
     virtual void ask_for_move() = 0;
     // Server: "ASK_FOR_MOVE"

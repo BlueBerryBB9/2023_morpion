@@ -1,5 +1,9 @@
 #pragma once
 
+#include <SFML/Network.hpp>
+#include <SFML/Network/SocketSelector.hpp>
+#include <SFML/Network/TcpListener.hpp>
+#include <SFML/Network/TcpSocket.hpp>
 #include "./IPlayer.hpp"
 
 class StandaloneNetPlayer : public IPlayer {
@@ -24,4 +28,7 @@ private:
     bool                        _is_waiting_move{false};
     bool                        _is_its_turn{false};
     char                        _sym;
+    sf::TcpSocket               _sock;
+    sf::TcpListener             _lstnr;
+    sf::SocketSelector          _sect;
 };

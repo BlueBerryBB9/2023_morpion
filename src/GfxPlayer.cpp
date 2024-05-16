@@ -25,14 +25,18 @@ GfxPlayer::~GfxPlayer()
 void GfxPlayer::set_win()
 {
     _status_text.set_text(std::string{"winner: "} + _sym);
-    _status_text_changed = true;
     _update_window_if_needed();
 }
 
 void GfxPlayer::set_draw()
 {
     _status_text.set_text("no one wins");
-    _status_text_changed = true;
+    _update_window_if_needed();
+}
+
+void GfxPlayer::set_lose()
+{
+    _status_text.set_text("You lose !");
     _update_window_if_needed();
 }
 
@@ -55,7 +59,6 @@ std::optional<unsigned int> GfxPlayer::get_move()
 void GfxPlayer::set_board_state(const std::array<char, 9> &board)
 {
     _grid_text.set_from(board);
-    // _grid_text_changed = true;
     _update_window_if_needed();
 }
 

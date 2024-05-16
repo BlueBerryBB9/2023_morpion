@@ -13,7 +13,8 @@ public:
     ~GfxPlayer();
 
     void set_win() override;
-    void set_draw(void) override;
+    void set_draw() override;
+    void set_lose() override;
     void set_board_state(const std::array<char, 9> &board) override;
     bool is_done() override;
     void ask_for_move() override;
