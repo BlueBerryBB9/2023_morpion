@@ -1,2 +1,2 @@
 current_tasks :
-    - issue: netplayer is_done method is not working
+    - issue: can't test without client side if communication with packets by using netcat is working when sending messages from client with netcat
