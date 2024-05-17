@@ -8,10 +8,9 @@
 
 StandaloneNetPlayer::StandaloneNetPlayer(char sym) : _sym{sym}
 {
-    int               res;
-    std::string       str;
-    std::stringstream ss;
-    sf::TcpListener   lstnr;
+    int             res;
+    std::string     str;
+    sf::TcpListener lstnr;
 
     std::cout << "NetPlayer Initialization" << std::endl;
 
@@ -37,7 +36,7 @@ StandaloneNetPlayer::StandaloneNetPlayer(char sym) : _sym{sym}
     _sect.add(_sock);
 
     sf::Packet packet;
-    packet << std::string("SET_SYM") << (_sym == 'x' ? 'X' : 'O');
+    packet << std::string("SET_SYM") << (_sym == 'x' ? 0 : 1);
     _send_on_sock(packet);
 }
 
@@ -94,12 +93,17 @@ void StandaloneNetPlayer::set_lose()
 
 void StandaloneNetPlayer::set_board_state(const std::array<char, 9> &board)
 {
-    std::string str;
+    std::string str("SET_BOARD_STATE");
+    sf::Packet  packet;
+
+    packet << str;
+    str.clear();
 
     for (int i = 0; i < static_cast<int>(board.size()); i++)
         str = str + board[i];
+    packet << str;
 
-    _send_on_sock("SET_BOARD_STATE" + str);
+    _send_on_sock(packet);
 }
 
 bool StandaloneNetPlayer::is_done()
