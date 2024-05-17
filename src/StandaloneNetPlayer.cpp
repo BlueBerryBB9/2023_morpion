@@ -47,16 +47,16 @@ StandaloneNetPlayer::~StandaloneNetPlayer()
         _sock.disconnect();
 }
 
-void StandaloneNetPlayer::_send_on_sock(std::string str)
+sf::Socket::Status StandaloneNetPlayer::_send_on_sock(std::string str)
 {
     sf::Packet packet;
     packet << str;
-    _sock.send(packet);
+    return _sock.send(packet);
 }
 
-void StandaloneNetPlayer::_send_on_sock(sf::Packet packet)
+sf::Socket::Status StandaloneNetPlayer::_send_on_sock(sf::Packet packet)
 {
-    _sock.send(packet);
+    return _sock.send(packet);
 }
 
 int StandaloneNetPlayer::_receive_on_sock()
@@ -104,7 +104,8 @@ void StandaloneNetPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool StandaloneNetPlayer::is_done()
 {
-    return (_sock.getRemotePort() == 0);
+    _sock.setBlocking(false);
+    return (_send_on_sock("") == sf::Socket::Disconnected);
 }
 
 void StandaloneNetPlayer::ask_for_move()
