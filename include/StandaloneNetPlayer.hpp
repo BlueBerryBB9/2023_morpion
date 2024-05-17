@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Network.hpp>
+#include <SFML/Network/Packet.hpp>
 #include <SFML/Network/SocketSelector.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
@@ -25,12 +26,13 @@ public:
     std::optional<unsigned int> get_move() override;
 
 private:
-    std::string _receive_on_sock();
-    void        _send_on_sock(std::string str);
+    int  _receive_on_sock();
+    void _send_on_sock(std::string str);
+    void _send_on_sock(sf::Packet packet);
 
     std::optional<unsigned int> _move_made{std::nullopt};
-    bool                        _is_waiting_move{false};
     bool                        _is_its_turn{false};
+    bool                        _can_ask_again{true};
     char                        _sym;
     sf::TcpSocket               _sock;
     sf::SocketSelector          _sect;

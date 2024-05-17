@@ -14,7 +14,7 @@ public:
     // Server: "[SET_DRAW]"
 
     virtual void set_lose() = 0;
-    // Server: "[SET_DRAW]"
+    // Server: "[SET_LOSE]"
 
     virtual std::optional<unsigned int> get_move() = 0;
 
@@ -37,6 +37,7 @@ public:
     // Server: "[SWAP_TURN]"
 
     virtual void process_events() = 0;
+    // Client: "[MOVE " + (number between 0 & 8) + "]"
 
     virtual char get_sym() = 0;
 };

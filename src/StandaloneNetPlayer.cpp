@@ -1,20 +1,32 @@
 #include "../include/StandaloneNetPlayer.hpp"
 #include <SFML/Network.hpp>
+#include <SFML/Network/Packet.hpp>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
 StandaloneNetPlayer::StandaloneNetPlayer(char sym) : _sym{sym}
 {
-    int             res;
-    sf::TcpListener lstnr;
+    int               res;
+    std::string       str;
+    std::stringstream ss;
+    sf::TcpListener   lstnr;
+
+    std::cout << "NetPlayer Initialization" << std::endl;
 
     std::cout << "Please give a port to listen on :" << std::endl;
-    while (!(std::cin >> res))
+
+    while (!(std::cin >> res)) {
+        std::cin.clear();
+        std::cin.ignore(256, '\n');
         std::cout << "Please give a port to listen on :" << std::endl;
+    }
 
     if (lstnr.listen(res) != sf::Socket::Done)
         throw std::runtime_error("ctor:listener:listen");
+
+    std::cout << "Listening..." << std::endl;
 
     if (lstnr.accept(_sock) != sf::Socket::Done)
         throw std::runtime_error("ctor:listener:accept");
@@ -23,9 +35,10 @@ StandaloneNetPlayer::StandaloneNetPlayer(char sym) : _sym{sym}
 
     lstnr.close();
     _sect.add(_sock);
-    std::string mess = "SET_SYM ";
-    mess += _sym;
-    _send_on_sock(mess);
+
+    sf::Packet packet;
+    packet << std::string("SET_SYM") << (_sym == 'x' ? 'X' : 'O');
+    _send_on_sock(packet);
 }
 
 StandaloneNetPlayer::~StandaloneNetPlayer()
@@ -36,22 +49,32 @@ StandaloneNetPlayer::~StandaloneNetPlayer()
 
 void StandaloneNetPlayer::_send_on_sock(std::string str)
 {
-    _sock.send(str.c_str(), str.size());
+    sf::Packet packet;
+    packet << str;
+    _sock.send(packet);
 }
 
-std::string StandaloneNetPlayer::_receive_on_sock()
+void StandaloneNetPlayer::_send_on_sock(sf::Packet packet)
 {
-    // NEED TO MODIFY THIS SO I CAN USE PACKET
-    // char *str;
-    // // std::size_t bytes_read;
-    //
-    // str = new char[30];
-    // while (_sock.receive()) {
-    //
-    // }
-    // str[bytes_read] = '\0';
+    _sock.send(packet);
+}
 
-    return std::string("nothing for now");
+int StandaloneNetPlayer::_receive_on_sock()
+{
+    int         res;
+    sf::Packet  packet;
+    std::string func;
+
+    _sock.receive(packet);
+
+    packet >> func;
+
+    if (func != "MOVE")
+        throw std::runtime_error("receive on sock: MOVE string not found");
+
+    packet >> res;
+
+    return res;
 }
 
 void StandaloneNetPlayer::set_win()
@@ -86,7 +109,10 @@ bool StandaloneNetPlayer::is_done()
 
 void StandaloneNetPlayer::ask_for_move()
 {
-    _send_on_sock("ASK_FOR_MOVE");
+    if (_can_ask_again) {
+        _send_on_sock("ASK_FOR_MOVE");
+        _can_ask_again = false;
+    }
 }
 
 void StandaloneNetPlayer::set_turn(bool your_turn)
@@ -117,8 +143,15 @@ std::optional<unsigned int> StandaloneNetPlayer::get_move()
 
 void StandaloneNetPlayer::process_events()
 {
+    _move_made.reset();
+
+    if (!_is_its_turn)
+        return;
+    if (_can_ask_again)
+        ask_for_move();
     _sect.wait();
     if (_sect.isReady(_sock)) {
-        std::string res(_receive_on_sock());
+        _move_made     = _receive_on_sock();
+        _can_ask_again = true;
     }
 }

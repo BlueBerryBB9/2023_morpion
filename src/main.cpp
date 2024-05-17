@@ -6,13 +6,14 @@
 #include "../include/IPlayer.hpp"
 #include "../include/MorpionGame.hpp"
 #include "../include/OneMorpionGame.hpp"
+#include "../include/StandaloneNetPlayer.hpp"
 #include "../include/TermPlayer.hpp"
 
 using player_ptr = std::unique_ptr<IPlayer>;
 
 int main(void)
 {
-    OneMorpionGame g{{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
+    OneMorpionGame g{{player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
                       player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
 
     while (!g.is_done()) {
