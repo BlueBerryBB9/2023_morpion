@@ -44,27 +44,35 @@ void client()
     packet >> str;
     packet >> res;
 
+    std::cout << "str : " + str << std::endl;
+    std::cout << "res : " << res << std::endl;
+
     GfxPlayer player((res ? 'x' : 'o'));
 
     client_loop(sock, player);
+    sock.disconnect();
 }
 
 int main(int ac, char **av)
 {
-    if (ac < 2)
-        throw std::runtime_error("main:argument number");
-    if ("client"sv != av[1] && "host"sv != av[1])
-        throw std::runtime_error("main:second argument");
-    if ("client"sv == av[1]) {
-        client();
-    } else {
-        OneMorpionGame g{
-            {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
-             player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
+    try {
+        if (ac < 2)
+            throw std::runtime_error("main:argument number");
+        if ("client"sv != av[1] && "host"sv != av[1])
+            throw std::runtime_error("main:second argument");
+        if ("client"sv == av[1]) {
+            client();
+        } else {
+            OneMorpionGame g{
+                {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
+                 player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
 
-        while (!g.is_done()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            g.run_once();
+            while (!g.is_done()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                g.run_once();
+            }
         }
+    } catch (std::exception &e) {
+        std::cout << "Game Stopped Suddenly :" << e.what() << std::endl;
     }
 }

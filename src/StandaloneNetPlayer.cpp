@@ -53,7 +53,7 @@ sf::Socket::Status StandaloneNetPlayer::_send_on_sock(std::string str)
     return _sock.send(packet);
 }
 
-sf::Socket::Status StandaloneNetPlayer::_send_on_sock(sf::Packet packet)
+sf::Socket::Status StandaloneNetPlayer::_send_on_sock(sf::Packet &packet)
 {
     return _sock.send(packet);
 }
@@ -109,7 +109,9 @@ void StandaloneNetPlayer::set_board_state(const std::array<char, 9> &board)
 bool StandaloneNetPlayer::is_done()
 {
     _sock.setBlocking(false);
-    return (_send_on_sock("") == sf::Socket::Disconnected);
+    bool res = _send_on_sock("") == sf::Socket::Disconnected;
+    _sock.setBlocking(true);
+    return res;
 }
 
 void StandaloneNetPlayer::ask_for_move()
@@ -122,8 +124,12 @@ void StandaloneNetPlayer::ask_for_move()
 
 void StandaloneNetPlayer::set_turn(bool your_turn)
 {
-    std::string str((your_turn ? "1" : "0"));
-    _send_on_sock("SET_TURN " + str);
+    sf::Packet  packet;
+    std::string str("SET_TURN");
+
+    packet << str;
+    packet << your_turn;
+    _send_on_sock(packet);
 }
 
 void StandaloneNetPlayer::swap_turn()
