@@ -88,6 +88,12 @@ void StandaloneNetPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool StandaloneNetPlayer::is_done()
 {
+    // static int i = 0;
+    //
+    // i++;
+    // if (i % 5 != 0)
+    //     return false;
+
     _sock.setBlocking(false);
     bool res = _send_on_sock("") == sf::Socket::Disconnected;
     _sock.setBlocking(true);
@@ -109,6 +115,7 @@ void StandaloneNetPlayer::set_turn(bool your_turn)
     std::string str("SET_TURN");
 
     _is_its_turn = your_turn;
+
     packet << str;
     packet << your_turn;
     _send_on_sock(packet);

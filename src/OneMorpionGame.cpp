@@ -20,8 +20,8 @@ const std::unordered_map<MorpionGame::Status, func_on_2_players> STATUS_MAP = {
      }},
     {MorpionGame::Status::POWin,
      [](IPlayer &x, IPlayer &o) {
-         x.set_win();
-         o.set_lose();
+         x.set_lose();
+         o.set_win();
      }},
 };
 
@@ -96,8 +96,8 @@ void OneMorpionGame::report_end()
 
     if (found_iter != STATUS_MAP.end())
         found_iter->second(*_players[0], *_players[1]);
+    else
+        std::cerr << "the game hasn't ended properly\n";
 
-    std::cerr << "the game hasn't ended properly\n";
-
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 }
