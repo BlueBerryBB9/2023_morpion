@@ -2,6 +2,7 @@
 #include <SFML/Network/Packet.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <chrono>
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <thread>
@@ -58,10 +59,18 @@ int main(int ac, char **av)
     try {
         if (ac < 2)
             throw std::runtime_error("main:argument number");
-        if ("client"sv != av[1] && "host"sv != av[1])
+        if ("client"sv != av[1] && "host"sv != av[1] && "local"sv != av[1])
             throw std::runtime_error("main:second argument");
         if ("client"sv == av[1]) {
             client();
+        } else if ("local"sv == av[1]) {
+            OneMorpionGame g{{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
+                              player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
+
+            while (!g.is_done()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                g.run_once();
+            }
         } else {
             OneMorpionGame g{
                 {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
@@ -69,6 +78,7 @@ int main(int ac, char **av)
 
             while (!g.is_done()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                std::cout << "PROBELM ?\n";
                 g.run_once();
             }
         }

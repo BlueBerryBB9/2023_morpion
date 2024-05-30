@@ -6,7 +6,6 @@
 #include <array>
 #include <functional>
 #include <stdexcept>
-#include <unistd.h>
 #include "../include/GfxPlayer.hpp"
 
 using namespace std::literals;
@@ -22,13 +21,13 @@ const std::unordered_map<std::string, func_player> NO_ARGS_FUNCTIONS = {
     {"SWAP_TURN", [](IPlayer &x) { x.swap_turn(); }},
 };
 
-const std::array<char, 9> convert_to_array(std::string str)
+const std::array<char, 9> convert_to_array(std::string str1)
 {
-    int                 i{0};
+    int                 i;
     std::array<char, 9> arr = {};
 
-    for (auto c : str)
-        arr[i] = c;
+    for (i = 0; i < 9; i++)
+        arr[i] = str1[i];
 
     return arr;
 }
@@ -38,7 +37,8 @@ bool parse_and_exec(sf::Packet &packet, GfxPlayer &player)
     std::string str;
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
-    std::cout << "STR : " << str << std::endl;
+    if (str != ""sv)
+        std::cout << "STR : " << str << std::endl;
     auto it{NO_ARGS_FUNCTIONS.find(str)};
     if (it != NO_ARGS_FUNCTIONS.end()) {
         it->second(player);
@@ -48,7 +48,6 @@ bool parse_and_exec(sf::Packet &packet, GfxPlayer &player)
         if (str == "SET_BOARD_STATE"sv) {
             std::string str2;
             packet >> str2;
-            std::cout << "STR2 : " << str << std::endl;
             player.set_board_state(convert_to_array(str2));
         } else if (str == "SET_TURN"sv) {
             bool res;
@@ -78,7 +77,6 @@ void client_loop(sf::TcpSocket &sock, GfxPlayer &player)
 
     sect.add(sock);
     while (!player.is_done() && !is_sock_done(sock)) {
-        sleep(1);
         sect.wait();
         if (sect.isReady(sock)) {
             sock.receive(packet);
@@ -87,9 +85,10 @@ void client_loop(sf::TcpSocket &sock, GfxPlayer &player)
             packet.clear();
         }
         player.process_events();
-        if (player.get_move()) {
-            packet << std::string("MOVE");
-            packet << player.get_move().value();
+        if (player.get_move() != std::nullopt) {
+            std::cout << "MOVE IS DONE" << std::endl;
+            int i = player.get_move().value();
+            packet << std::string("MOVE") << i;
             sock.send(packet);
             packet.clear();
         }

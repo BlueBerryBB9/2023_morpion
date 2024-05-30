@@ -94,14 +94,13 @@ void StandaloneNetPlayer::set_lose()
 void StandaloneNetPlayer::set_board_state(const std::array<char, 9> &board)
 {
     std::string str("SET_BOARD_STATE");
+    std::string str2;
     sf::Packet  packet;
 
-    packet << str;
-    str.clear();
-
     for (int i = 0; i < static_cast<int>(board.size()); i++)
-        str = str + board[i];
-    packet << str;
+        str2 = str2 + board[i];
+
+    packet << str << str2;
 
     _send_on_sock(packet);
 }
@@ -161,7 +160,9 @@ void StandaloneNetPlayer::process_events()
     if (_can_ask_again)
         ask_for_move();
     _sect.wait();
+    std::cout << "HERE ?" << std::endl;
     if (_sect.isReady(_sock)) {
+        std::cout << "RECEIVDE SOMETHING" << std::endl;
         _move_made     = _receive_on_sock();
         _can_ask_again = true;
     }
