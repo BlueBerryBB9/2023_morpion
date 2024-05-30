@@ -66,6 +66,7 @@ void GfxPlayer::process_events()
 {
     sf::Event event;
 
+    _move_made.reset();
     while (_win.pollEvent(event)) {
         if (event.type == sf::Event::Closed
             || (event.type == sf::Event::KeyPressed

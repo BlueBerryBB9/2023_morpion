@@ -20,7 +20,8 @@ SRCS		=	src/MorpionGame.cpp \
                 src/GfxPlayer.cpp \
                 src/TermPlayer.cpp \
                 src/StandaloneNetPlayer.cpp \
-                src/OneMorpionGame.cpp
+                src/OneMorpionGame.cpp \
+                src/client.cpp
 
 OBJ_MAIN	=	$(MAIN:.cpp=.o)
 

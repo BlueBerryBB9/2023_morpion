@@ -91,6 +91,7 @@ bool StandaloneNetPlayer::is_done()
     _sock.setBlocking(false);
     bool res = _send_on_sock("") == sf::Socket::Disconnected;
     _sock.setBlocking(true);
+
     return res;
 }
 
@@ -115,6 +116,7 @@ void StandaloneNetPlayer::set_turn(bool your_turn)
 
 void StandaloneNetPlayer::swap_turn()
 {
+    _is_its_turn = !_is_its_turn;
     _send_on_sock("SWAP_TURN");
 }
 
@@ -151,6 +153,8 @@ std::optional<int> StandaloneNetPlayer::_receive_on_sock()
 
     packet >> res;
 
+    std::cout << "FUNC : " << func << " RES : " << res << std::endl;
+
     return res;
 }
 
@@ -158,14 +162,12 @@ void StandaloneNetPlayer::process_events()
 {
     _move_made.reset();
 
-    std::cout << "HERE ?" << std::endl;
     if (!_is_its_turn)
         return;
     if (_can_ask_again)
         ask_for_move();
     _sect.wait();
     if (_sect.isReady(_sock)) {
-        std::cout << "RECEIVDE SOMETHING" << std::endl;
         _move_made = _receive_on_sock();
         if (_move_made)
             _can_ask_again = true;
