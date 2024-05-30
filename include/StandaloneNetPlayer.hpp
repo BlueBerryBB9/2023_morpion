@@ -26,7 +26,7 @@ public:
     std::optional<unsigned int> get_move() override;
 
 private:
-    int                _receive_on_sock();
+    std::optional<int> _receive_on_sock();
     sf::Socket::Status _send_on_sock(std::string str);
     sf::Socket::Status _send_on_sock(sf::Packet &packet);
 

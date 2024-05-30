@@ -2,7 +2,6 @@
 #include <SFML/Network.hpp>
 #include <SFML/Network/Packet.hpp>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -58,24 +57,6 @@ sf::Socket::Status StandaloneNetPlayer::_send_on_sock(sf::Packet &packet)
     return _sock.send(packet);
 }
 
-int StandaloneNetPlayer::_receive_on_sock()
-{
-    int         res;
-    sf::Packet  packet;
-    std::string func;
-
-    _sock.receive(packet);
-
-    packet >> func;
-
-    if (func != "MOVE")
-        throw std::runtime_error("receive on sock: MOVE string not found");
-
-    packet >> res;
-
-    return res;
-}
-
 void StandaloneNetPlayer::set_win()
 {
     _send_on_sock("SET_WIN");
@@ -126,6 +107,7 @@ void StandaloneNetPlayer::set_turn(bool your_turn)
     sf::Packet  packet;
     std::string str("SET_TURN");
 
+    _is_its_turn = your_turn;
     packet << str;
     packet << your_turn;
     _send_on_sock(packet);
@@ -151,19 +133,41 @@ std::optional<unsigned int> StandaloneNetPlayer::get_move()
     return _move_made ? _move_made : std::nullopt;
 }
 
+std::optional<int> StandaloneNetPlayer::_receive_on_sock()
+{
+    int         res;
+    sf::Packet  packet;
+    std::string func;
+
+    _sock.receive(packet);
+
+    packet >> func;
+
+    if (func.empty())
+        return {};
+
+    if (func != "MOVE")
+        throw std::runtime_error("receive on sock: MOVE string not found");
+
+    packet >> res;
+
+    return res;
+}
+
 void StandaloneNetPlayer::process_events()
 {
     _move_made.reset();
 
+    std::cout << "HERE ?" << std::endl;
     if (!_is_its_turn)
         return;
     if (_can_ask_again)
         ask_for_move();
     _sect.wait();
-    std::cout << "HERE ?" << std::endl;
     if (_sect.isReady(_sock)) {
         std::cout << "RECEIVDE SOMETHING" << std::endl;
-        _move_made     = _receive_on_sock();
-        _can_ask_again = true;
+        _move_made = _receive_on_sock();
+        if (_move_made)
+            _can_ask_again = true;
     }
 }

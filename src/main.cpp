@@ -48,7 +48,7 @@ void client()
     std::cout << "str : " + str << std::endl;
     std::cout << "res : " << res << std::endl;
 
-    GfxPlayer player((res ? 'x' : 'o'));
+    GfxPlayer player((res ? 'o' : 'x'));
 
     client_loop(sock, player);
     sock.disconnect();
@@ -78,7 +78,6 @@ int main(int ac, char **av)
 
             while (!g.is_done()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                std::cout << "PROBELM ?\n";
                 g.run_once();
             }
         }

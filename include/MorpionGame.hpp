@@ -1,6 +1,5 @@
 #pragma once
 #include <array>
-#include <ostream>
 
 class MorpionGame {
 public:
