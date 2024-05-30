@@ -6,6 +6,7 @@
 #include <array>
 #include <functional>
 #include <stdexcept>
+#include <unistd.h>
 #include "../include/GfxPlayer.hpp"
 
 using namespace std::literals;
@@ -77,6 +78,7 @@ void client_loop(sf::TcpSocket &sock, GfxPlayer &player)
 
     sect.add(sock);
     while (!player.is_done() && !is_sock_done(sock)) {
+        sleep(1);
         sect.wait();
         if (sect.isReady(sock)) {
             sock.receive(packet);
