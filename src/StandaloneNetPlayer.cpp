@@ -97,9 +97,9 @@ bool StandaloneNetPlayer::is_done()
 {
     static int i = 0;
 
-    // send packet only 1 time of 3 to avoid overwhelming the socket
+    // send packet only 1 time of 4 to avoid overwhelming the socket
     i++;
-    if (i % 3 != 0)
+    if (i % 4 != 0)
         return false;
 
     return (_send_on_sock() == sf::Socket::Disconnected);
@@ -153,8 +153,6 @@ std::optional<int> StandaloneNetPlayer::_receive_on_sock()
     std::string func;
 
     _sock.receive(packet);
-
-    std::cout << "DATA_SIZE : " << packet.getDataSize() << std::endl;
 
     packet >> func;
 
