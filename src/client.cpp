@@ -1,5 +1,6 @@
 #include "../include/client.hpp"
 #include <SFML/Network.hpp>
+#include <SFML/Network/Packet.hpp>
 #include <SFML/System/Time.hpp>
 #include <array>
 #include <chrono>
@@ -7,7 +8,34 @@
 #include <thread>
 #include "../include/GfxPlayer.hpp"
 
-const std::array<char, 9> Client::_convert_to_array(std::string str1)
+Client::Client()
+{
+    int         res;
+    std::string str;
+
+    std::cout << "Initializing client" << std::endl;
+
+    std::cout << "Please give a port to connect on :" << std::endl;
+
+    while (!(std::cin >> res)) {
+        std::cin.clear();
+        std::cin.ignore(256, '\n');
+        std::cout << "Please give a port to connect on :" << std::endl;
+    }
+
+    if (_sock.connect(sf::IpAddress("localhost"), res) != sf::Socket::Done)
+        throw std::runtime_error("ctor:listener:listen");
+
+    std::cout << "Socket connected" << std::endl;
+
+    sf::Packet packet;
+    _sock.receive(packet);
+    packet >> str >> res;
+
+    _player = player_ptr(new GfxPlayer((res ? 'o' : 'x')));
+}
+
+const std::array<char, 9> Client::_convert_str_to_array(std::string str1)
 {
     int                 i;
     std::array<char, 9> arr = {};
@@ -21,11 +49,14 @@ const std::array<char, 9> Client::_convert_to_array(std::string str1)
 bool Client::_parse_and_exec(sf::Packet &packet)
 {
     std::string str;
+
+    if (packet.getDataSize() == 0)
+        return false;
+
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
 
-    if (!str.empty())
-        std::cout << "STR : " << str << std::endl;
+    std::cout << "RECEIVED : " << str << std::endl;
 
     auto it{NO_ARGS_FUNCTIONS.find(str)};
 
@@ -39,7 +70,7 @@ bool Client::_parse_and_exec(sf::Packet &packet)
         if (str == "SET_BOARD_STATE"sv) {
             std::string str2;
             packet >> str2;
-            _player->set_board_state(_convert_to_array(str2));
+            _player->set_board_state(_convert_str_to_array(str2));
         } else if (str == "SET_TURN"sv) {
             bool res;
             packet >> res;
@@ -56,6 +87,12 @@ sf::Socket::Status Client::_send_on_sock(std::string str)
     return _sock.send(packet);
 }
 
+sf::Socket::Status Client::_send_on_sock()
+{
+    sf::Packet packet;
+    return _sock.send(packet);
+}
+
 bool Client::_is_sock_done()
 {
     static int i = 0;
@@ -65,7 +102,7 @@ bool Client::_is_sock_done()
     if (i % 3 != 0)
         return false;
 
-    return (_send_on_sock("") == sf::Socket::Disconnected);
+    return (_send_on_sock() == sf::Socket::Disconnected);
 }
 
 void Client::client_loop()
@@ -96,31 +133,4 @@ void Client::client_loop()
             _played = true;
         }
     }
-}
-
-Client::Client()
-{
-    int         res;
-    std::string str;
-
-    std::cout << "Initializing client" << std::endl;
-
-    std::cout << "Please give a port to connect on :" << std::endl;
-
-    while (!(std::cin >> res)) {
-        std::cin.clear();
-        std::cin.ignore(256, '\n');
-        std::cout << "Please give a port to connect on :" << std::endl;
-    }
-
-    if (_sock.connect(sf::IpAddress("localhost"), res) != sf::Socket::Done)
-        throw std::runtime_error("ctor:listener:listen");
-
-    std::cout << "Socket connected" << std::endl;
-
-    sf::Packet packet;
-    _sock.receive(packet);
-    packet >> str >> res;
-
-    _player = player_ptr(new GfxPlayer((res ? 'o' : 'x')));
 }

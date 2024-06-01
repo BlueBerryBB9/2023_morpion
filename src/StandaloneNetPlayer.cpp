@@ -58,6 +58,12 @@ sf::Socket::Status StandaloneNetPlayer::_send_on_sock(sf::Packet &packet)
     return _sock.send(packet);
 }
 
+sf::Socket::Status StandaloneNetPlayer::_send_on_sock()
+{
+    sf::Packet packet;
+    return _sock.send(packet);
+}
+
 void StandaloneNetPlayer::set_win()
 {
     _send_on_sock("SET_WIN");
@@ -96,7 +102,7 @@ bool StandaloneNetPlayer::is_done()
     if (i % 3 != 0)
         return false;
 
-    return (_send_on_sock("") == sf::Socket::Disconnected);
+    return (_send_on_sock() == sf::Socket::Disconnected);
 }
 
 void StandaloneNetPlayer::ask_for_move()
@@ -147,6 +153,8 @@ std::optional<int> StandaloneNetPlayer::_receive_on_sock()
     std::string func;
 
     _sock.receive(packet);
+
+    std::cout << "DATA_SIZE : " << packet.getDataSize() << std::endl;
 
     packet >> func;
 

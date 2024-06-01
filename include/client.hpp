@@ -26,10 +26,11 @@ public:
     void client_loop();
 
 private:
-    const std::array<char, 9> _convert_to_array(std::string str1);
+    const std::array<char, 9> _convert_str_to_array(std::string str1);
     bool                      _parse_and_exec(sf::Packet &packet);
     bool                      _is_sock_done();
     sf::Socket::Status        _send_on_sock(std::string str);
+    sf::Socket::Status        _send_on_sock();
     sf::TcpSocket             _sock;
     bool                      _played{false};
     player_ptr                _player;

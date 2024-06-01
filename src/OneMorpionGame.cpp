@@ -1,6 +1,7 @@
 #include "../include/OneMorpionGame.hpp"
 #include <array>
 #include <chrono>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <thread>
@@ -44,6 +45,10 @@ OneMorpionGame::OneMorpionGame(std::array<player_ptr, 2> players)
 
 void OneMorpionGame::run_once()
 {
+    // try {
+    //     if (is_done())
+    //         return;
+
     if (players_or_game_done()) {
         report_end();
         return;
@@ -71,7 +76,10 @@ void OneMorpionGame::run_once()
             _players[_current_player]->ask_for_move();
         }
 
-    return;
+    // } catch (std::exception &e) {
+    //     std::cout << e.what() << std::endl;
+    //     _is_done = true;
+    // }
 }
 
 void OneMorpionGame::report_end()

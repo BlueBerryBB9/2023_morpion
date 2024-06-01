@@ -29,6 +29,7 @@ private:
     std::optional<int> _receive_on_sock();
     sf::Socket::Status _send_on_sock(std::string str);
     sf::Socket::Status _send_on_sock(sf::Packet &packet);
+    sf::Socket::Status _send_on_sock();
 
     std::optional<unsigned int> _move_made{std::nullopt};
     bool                        _is_its_turn{false};
