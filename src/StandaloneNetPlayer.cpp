@@ -1,6 +1,7 @@
 #include "../include/StandaloneNetPlayer.hpp"
 #include <SFML/Network.hpp>
 #include <SFML/Network/Packet.hpp>
+#include <SFML/System/Time.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -88,11 +89,14 @@ void StandaloneNetPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool StandaloneNetPlayer::is_done()
 {
-    _sock.setBlocking(false);
-    bool res = (_send_on_sock("") == sf::Socket::Disconnected);
-    _sock.setBlocking(true);
+    static int i = 0;
 
-    return res;
+    // send packet only 1 time of 3 to avoid overwhelming the socket
+    i++;
+    if (i % 3 != 0)
+        return false;
+
+    return (_send_on_sock("") == sf::Socket::Disconnected);
 }
 
 void StandaloneNetPlayer::ask_for_move()
@@ -167,7 +171,7 @@ void StandaloneNetPlayer::process_events()
         return;
     if (_can_ask_again)
         ask_for_move();
-    _sect.wait();
+    _sect.wait(sf::milliseconds(50));
     if (_sect.isReady(_sock)) {
         _move_made = _receive_on_sock();
         if (_move_made)

@@ -1,5 +1,6 @@
 #include "../include/client.hpp"
 #include <SFML/Network.hpp>
+#include <SFML/System/Time.hpp>
 #include <array>
 #include <chrono>
 #include <iostream>
@@ -48,24 +49,23 @@ bool Client::_parse_and_exec(sf::Packet &packet)
     return false;
 }
 
+sf::Socket::Status Client::_send_on_sock(std::string str)
+{
+    sf::Packet packet;
+    packet << str;
+    return _sock.send(packet);
+}
+
 bool Client::_is_sock_done()
 {
-    // static int i = 0;
-    //
-    // i++;
-    // if (i % 5 != 0)
-    //     return false;
+    static int i = 0;
 
-    bool       res;
-    sf::Packet packet;
+    // send packet only 1 time of 3 to avoid overwhelming the socket
+    i++;
+    if (i % 3 != 0)
+        return false;
 
-    packet << std::string("");
-
-    _sock.setBlocking(false);
-    res = (_sock.send(packet) == sf::Socket::Disconnected);
-    _sock.setBlocking(true);
-
-    return res;
+    return (_send_on_sock("") == sf::Socket::Disconnected);
 }
 
 void Client::client_loop()
@@ -75,9 +75,8 @@ void Client::client_loop()
 
     sect.add(_sock);
     while (!_player->is_done() && !_is_sock_done()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        sect.wait(sf::milliseconds(50));
 
-        sect.wait();
         if (sect.isReady(_sock)) {
             _sock.receive(packet);
             if (_parse_and_exec(packet)) {

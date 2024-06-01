@@ -55,13 +55,13 @@ void OneMorpionGame::run_once()
     if (_players[_current_player]->get_move())
         if (_game.play(_players[_current_player]->get_sym(),
                        *_players[_current_player]->get_move())) {
+            _players[0]->set_board_state(_game.array());
+            _players[1]->set_board_state(_game.array());
+
             if (players_or_game_done()) {
                 report_end();
                 return;
             }
-
-            _players[0]->set_board_state(_game.array());
-            _players[1]->set_board_state(_game.array());
 
             _players[0]->swap_turn();
             _players[1]->swap_turn();
