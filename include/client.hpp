@@ -9,15 +9,6 @@ using namespace std::literals;
 using player_ptr  = std::unique_ptr<IPlayer>;
 using func_player = std::function<void(IPlayer &)>;
 
-const std::unordered_map<std::string, func_player> NO_ARGS_FUNCTIONS = {
-    {"SET_WIN", [](IPlayer &x) { x.set_win(); }},
-    {"SET_DRAW", [](IPlayer &x) { x.set_draw(); }},
-    {"SET_LOSE", [](IPlayer &x) { x.set_lose(); }},
-    {"SET_PLAYER_SYMBOL", [](IPlayer &x) { x.set_player_symbol(); }},
-    {"ASK_FOR_MOVE", [](IPlayer &x) { x.ask_for_move(); }},
-    {"SWAP_TURN", [](IPlayer &x) { x.swap_turn(); }},
-};
-
 class Client {
 public:
     Client();
@@ -34,6 +25,20 @@ private:
     sf::TcpSocket             _sock;
     bool                      _played{false};
     player_ptr                _player;
+
+    // MAP is inside the class to permit lambda to access private variables
+    const std::unordered_map<std::string, func_player> NO_ARGS_FUNCTIONS = {
+        {"SET_WIN", [](IPlayer &x) { x.set_win(); }},
+        {"SET_DRAW", [](IPlayer &x) { x.set_draw(); }},
+        {"SET_LOSE", [](IPlayer &x) { x.set_lose(); }},
+        {"SET_PLAYER_SYMBOL", [](IPlayer &x) { x.set_player_symbol(); }},
+        {"ASK_FOR_MOVE",
+         [&](IPlayer &x) {
+             x.ask_for_move();
+             _played = false;
+         }},
+        {"SWAP_TURN", [](IPlayer &x) { x.swap_turn(); }},
+    };
 };
 
 #endif

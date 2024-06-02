@@ -154,17 +154,12 @@ std::optional<int> StandaloneNetPlayer::_receive_on_sock()
 
     _sock.receive(packet);
 
-    packet >> func;
-
-    if (func.empty())
+    if (packet.getDataSize() == 0)
         return {};
-
-    if (func != "MOVE")
-        throw std::runtime_error("receive on sock: MOVE string not found");
 
     packet >> res;
 
-    std::cout << "FUNC : " << func << " RES : " << res << std::endl;
+    std::cout << "Client move : " << res << std::endl;
 
     return res;
 }

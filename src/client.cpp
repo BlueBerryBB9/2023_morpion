@@ -56,14 +56,10 @@ bool Client::_parse_and_exec(sf::Packet &packet)
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
 
-    std::cout << "RECEIVED : " << str << std::endl;
-
     auto it{NO_ARGS_FUNCTIONS.find(str)};
 
     if (it != NO_ARGS_FUNCTIONS.end()) {
         it->second(*_player);
-        if (str == "ASK_FOR_MOVE"sv)
-            _played = false;
         if (str == "SET_WIN"sv || str == "SET_DRAW"sv || str == "SET_LOSE"sv)
             return true;
     } else {
@@ -126,8 +122,8 @@ void Client::client_loop()
         _player->process_events();
 
         if (_player->get_move() != std::nullopt && !_played) {
-            std::cout << "MOVE IS DONE" << std::endl;
-            packet << std::string("MOVE") << _player->get_move().value();
+            std::cout << "MOVE DONE" << std::endl;
+            packet << _player->get_move().value();
             _sock.send(packet);
             packet.clear();
             _played = true;
