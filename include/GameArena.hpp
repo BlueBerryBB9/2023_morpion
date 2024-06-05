@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Network.hpp>
 #include <array>
 #include <memory>
 #include "IPlayer.hpp"
@@ -23,4 +24,5 @@ private:
     unsigned int              _current_player;
     std::array<player_ptr, 2> _players;
     bool                      _is_done{false};
+    sf::TcpListener           _lsntr;
 };

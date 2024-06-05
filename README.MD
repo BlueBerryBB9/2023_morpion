@@ -1,3 +1,5 @@
 current_tasks :
-    - issue: can't test without client side if communication with packets by using netcat is working when sending messages from client with netcat
-    - rn implementing client: need to continue exec_function function and convert to array of char a std::string
+    - TD5
+    - issue: can't listen on the same port because each netplayer instances a new listener -> maybe use a class with static listener accessible everywhere
+      BECAUSE i can't pass one through IPlayer constructor because it is a NetPlayer need only
+    - ask to Elise about upper question
