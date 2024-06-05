@@ -16,6 +16,7 @@ public:
     bool done() const;
 
 private:
+    bool _players_or_game_done();
     void _report_end();
 
     MorpionGame               _game;

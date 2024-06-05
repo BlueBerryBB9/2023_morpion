@@ -46,6 +46,9 @@ GameArena::GameArena(std::array<player_ptr, 2> players)
 void GameArena::cycle_once()
 {
     if (done())
+        return;
+
+    if (_players_or_game_done())
         return _report_end();
 
     _players[!_current_player]->process_events();
@@ -57,7 +60,7 @@ void GameArena::cycle_once()
             _players[0]->set_board_state(_game.array());
             _players[1]->set_board_state(_game.array());
 
-            if (done())
+            if (_players_or_game_done())
                 return _report_end();
 
             _players[0]->swap_turn();
@@ -71,7 +74,7 @@ void GameArena::cycle_once()
 
 void GameArena::run()
 {
-    while (!done()) {
+    while (!_players_or_game_done()) {
         _players[!_current_player]->process_events();
         _players[_current_player]->process_events();
 
@@ -81,7 +84,7 @@ void GameArena::run()
                 _players[0]->set_board_state(_game.array());
                 _players[1]->set_board_state(_game.array());
 
-                if (done())
+                if (_players_or_game_done())
                     return _report_end();
 
                 _players[0]->swap_turn();
@@ -124,6 +127,11 @@ void GameArena::_report_end()
 }
 
 bool GameArena::done() const
+{
+    return _is_done;
+}
+
+bool GameArena::_players_or_game_done()
 {
     return (_players[0]->is_done() || _players[1]->is_done() || _game.done());
 }
