@@ -1,4 +1,4 @@
-#include "../include/OneMorpionGame.hpp"
+#include "../include/GameArena.hpp"
 #include <array>
 #include <chrono>
 #include <exception>
@@ -26,7 +26,7 @@ const std::unordered_map<MorpionGame::Status, func_on_2_players> STATUS_MAP = {
      }},
 };
 
-OneMorpionGame::OneMorpionGame(std::array<player_ptr, 2> players)
+GameArena::GameArena(std::array<player_ptr, 2> players)
     : _players{std::move(players)}
 {
     _current_player = (_game.status() == MorpionGame::Status::PXTurn ? 0 : 1);
@@ -43,16 +43,10 @@ OneMorpionGame::OneMorpionGame(std::array<player_ptr, 2> players)
     _players[_current_player]->ask_for_move();
 }
 
-void OneMorpionGame::run_once()
+void GameArena::cycle_once()
 {
-    // try {
-    //     if (is_done())
-    //         return;
-
-    if (players_or_game_done()) {
-        report_end();
-        return;
-    }
+    if (done())
+        return _report_end();
 
     _players[!_current_player]->process_events();
     _players[_current_player]->process_events();
@@ -63,10 +57,8 @@ void OneMorpionGame::run_once()
             _players[0]->set_board_state(_game.array());
             _players[1]->set_board_state(_game.array());
 
-            if (players_or_game_done()) {
-                report_end();
-                return;
-            }
+            if (done())
+                return _report_end();
 
             _players[0]->swap_turn();
             _players[1]->swap_turn();
@@ -75,14 +67,35 @@ void OneMorpionGame::run_once()
             _players[!_current_player]->set_player_symbol();
             _players[_current_player]->ask_for_move();
         }
-
-    // } catch (std::exception &e) {
-    //     std::cout << e.what() << std::endl;
-    //     _is_done = true;
-    // }
 }
 
-void OneMorpionGame::report_end()
+void GameArena::run()
+{
+    while (!done()) {
+        _players[!_current_player]->process_events();
+        _players[_current_player]->process_events();
+
+        if (_players[_current_player]->get_move())
+            if (_game.play(_players[_current_player]->get_sym(),
+                           *_players[_current_player]->get_move())) {
+                _players[0]->set_board_state(_game.array());
+                _players[1]->set_board_state(_game.array());
+
+                if (done())
+                    return _report_end();
+
+                _players[0]->swap_turn();
+                _players[1]->swap_turn();
+                _current_player = !_current_player;
+
+                _players[!_current_player]->set_player_symbol();
+                _players[_current_player]->ask_for_move();
+            }
+    }
+    return _report_end();
+}
+
+void GameArena::_report_end()
 {
     _is_done = true;
 
@@ -108,4 +121,9 @@ void OneMorpionGame::report_end()
         std::cerr << "the game hasn't ended properly\n";
 
     std::this_thread::sleep_for(std::chrono::seconds(3));
+}
+
+bool GameArena::done() const
+{
+    return (_players[0]->is_done() || _players[1]->is_done() || _game.done());
 }

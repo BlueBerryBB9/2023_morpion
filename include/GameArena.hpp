@@ -7,25 +7,17 @@
 
 using player_ptr = std::unique_ptr<IPlayer>;
 
-class OneMorpionGame {
+class GameArena {
 public:
-    OneMorpionGame(std::array<player_ptr, 2> players);
+    GameArena(std::array<player_ptr, 2> players);
 
-    void report_end();
-    void run_once();
-
-    bool is_done()
-    {
-        return _is_done;
-    }
-
-    bool players_or_game_done()
-    {
-        return (_players[0]->is_done() || _players[1]->is_done()
-                || _game.done());
-    }
+    void cycle_once();
+    void run();
+    bool done() const;
 
 private:
+    void _report_end();
+
     MorpionGame               _game;
     unsigned int              _current_player;
     std::array<player_ptr, 2> _players;

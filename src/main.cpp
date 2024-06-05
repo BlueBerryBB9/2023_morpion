@@ -7,10 +7,10 @@
 #include <stdexcept>
 #include <thread>
 #include <unistd.h>
+#include "../include/GameArena.hpp"
 #include "../include/GfxPlayer.hpp"
 #include "../include/IPlayer.hpp"
 #include "../include/MorpionGame.hpp"
-#include "../include/OneMorpionGame.hpp"
 #include "../include/StandaloneNetPlayer.hpp"
 #include "../include/TermPlayer.hpp"
 #include "../include/client.hpp"
@@ -30,21 +30,21 @@ int main(int ac, char **av)
             Client cli;
             cli.client_loop();
         } else if ("local"sv == av[1]) {
-            OneMorpionGame g{{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
-                              player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
+            GameArena g{{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
+                         player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
 
-            while (!g.is_done()) {
+            while (!g.done()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                g.run_once();
+                g.cycle_once();
             }
         } else {
-            OneMorpionGame g{
+            GameArena g{
                 {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
                  player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
 
-            while (!g.is_done()) {
+            while (!g.done()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                g.run_once();
+                g.cycle_once();
             }
         }
     } catch (std::exception &e) {
