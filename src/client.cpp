@@ -28,11 +28,8 @@ Client::Client() : _last_clock(std::chrono::steady_clock::now())
 
     std::cout << "Socket connected" << std::endl;
 
-    sf::Packet packet;
-    _sock.receive(packet);
-    packet >> str >> res;
-
-    _player = player_ptr(new GfxPlayer((res ? 'o' : 'x')));
+    _player = player_ptr(new GfxPlayer('x'));
+    std::cout << "created gfx" << std::endl;
 }
 
 const std::array<char, 9> Client::_convert_str_to_array(std::string str1)
@@ -56,6 +53,7 @@ bool Client::_parse_and_exec(sf::Packet &packet)
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
 
+    std::cout << "STR : " << str << std::endl;
     auto it{NO_ARGS_FUNCTIONS.find(str)};
 
     if (it != NO_ARGS_FUNCTIONS.end()) {
@@ -71,6 +69,10 @@ bool Client::_parse_and_exec(sf::Packet &packet)
             bool res;
             packet >> res;
             _player->set_turn(res);
+        } else if (str == "SET_SYM"sv) {
+            int res;
+            packet >> res;
+            _player->set_sym((res ? 'o' : 'x'));
         }
     }
     return false;

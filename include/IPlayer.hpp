@@ -43,4 +43,7 @@ public:
 
     virtual void set_sym(char sym) = 0;
     // Server: "SET_SYM" + "0" (x) or "1"(o)
+
+    virtual void wait() = 0;
+    // Server: "WAIT"
 };

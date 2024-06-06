@@ -10,7 +10,8 @@ using player_ptr = std::unique_ptr<IPlayer>;
 
 class GameArena {
 public:
-    GameArena(std::array<player_ptr, 2> players);
+    // GameArena(std::array<player_ptr, 2> players);
+    GameArena(player_ptr player1, player_ptr player2);
 
     void cycle_once();
     void run();
@@ -22,7 +23,8 @@ private:
 
     MorpionGame               _game;
     unsigned int              _current_player;
-    std::array<player_ptr, 2> _players;
     bool                      _is_done{false};
-    sf::TcpListener           _lsntr;
+    player_ptr                _player1;
+    player_ptr                _player2;
+    std::array<player_ptr, 2> _players;
 };

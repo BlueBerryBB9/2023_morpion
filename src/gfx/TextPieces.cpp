@@ -9,7 +9,7 @@ TextPieces::TextPieces() : _font{}, _pieces{}
     int y{39};
     for (auto &text : _pieces) {
         text.setFont(_font);
-        text.setString("x");
+        text.setString(" ");
         text.setCharacterSize(24);
         text.setPosition(sf::Vector2f(x, y));
         x += 100;

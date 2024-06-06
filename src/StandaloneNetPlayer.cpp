@@ -211,4 +211,12 @@ void StandaloneNetPlayer::set_sym(char sym)
     _sym = sym;
     sf::Packet packet;
     packet << std::string("SET_SYM") << (_sym == 'x' ? 0 : 1);
+    _send_on_sock(packet);
+}
+
+void StandaloneNetPlayer::wait()
+{
+    sf::Packet packet;
+    packet << std::string("WAIT");
+    _send_on_sock(packet);
 }

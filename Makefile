@@ -21,6 +21,7 @@ SRCS		=	src/MorpionGame.cpp \
                 src/TermPlayer.cpp \
                 src/StandaloneNetPlayer.cpp \
                 src/GameArena.cpp \
+                src/NetPlayerFactory.cpp \
                 src/client.cpp
 
 OBJ_MAIN	=	$(MAIN:.cpp=.o)
@@ -35,7 +36,7 @@ SRCS_TEST	+=	$(SRCS)
 
 OBJS_TEST	=	$(SRCS_TEST:.cpp=.o)
 
-CPPFLAGS	=	-W -Wextra -Wall -Iinclude/ -std=c++20 -g
+CPPFLAGS	=	-W -Wextra -Wall -Iinclude/ -std=c++20 -gdwarf-4
 
 LDFLAGS		=	-lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
 

@@ -42,6 +42,7 @@ private:
              _played = false;
          }},
         {"SWAP_TURN", [](IPlayer &x) { x.swap_turn(); }},
+        {"WAIT", [](IPlayer &x) { x.wait(); }},
     };
 };
 

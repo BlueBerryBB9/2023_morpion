@@ -130,3 +130,9 @@ void GfxPlayer::set_sym(char sym)
 {
     _sym = sym;
 }
+
+void GfxPlayer::wait()
+{
+    _status_text.set_text(std::string{"Waiting another player..."});
+    _update_window_if_needed();
+}

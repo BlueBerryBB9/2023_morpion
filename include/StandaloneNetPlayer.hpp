@@ -27,6 +27,7 @@ public:
     void set_player_symbol() override;
     char get_sym() override;
     void set_sym(char sym) override;
+    void wait() override;
     std::optional<unsigned int> get_move() override;
 
 private:

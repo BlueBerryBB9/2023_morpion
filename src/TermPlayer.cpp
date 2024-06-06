@@ -113,3 +113,8 @@ void TermPlayer::set_sym(char sym)
 {
     _sym = sym;
 }
+
+void TermPlayer::wait()
+{
+    std::cout << "Waiting for another Player..." << std::endl;
+}

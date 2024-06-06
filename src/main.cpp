@@ -4,13 +4,13 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
-#include <sstream>
 #include <stdexcept>
 #include <thread>
 #include "GameArena.hpp"
 #include "GfxPlayer.hpp"
 #include "IPlayer.hpp"
 #include "MorpionGame.hpp"
+#include "NetPlayerFactory.hpp"
 #include "StandaloneNetPlayer.hpp"
 #include "TermPlayer.hpp"
 #include "client.hpp"
@@ -19,10 +19,10 @@ using namespace std::literals;
 
 using player_ptr = std::unique_ptr<IPlayer>;
 
-bool done(std::vector<std::unique_ptr<GameArena>> &g)
+bool done(std::vector<GameArena> &g)
 {
     for (auto it = g.begin(); it != g.end();) {
-        if (it->get()->done())
+        if (it->done())
             it = g.erase(it);
         else
             ++it;
@@ -30,18 +30,29 @@ bool done(std::vector<std::unique_ptr<GameArena>> &g)
     return g.empty();
 }
 
-void run_server(int game_number)
+void run_server()
 {
-    std::vector<std::unique_ptr<GameArena>> g;
+    std::vector<GameArena>                arenas;
+    std::vector<std::unique_ptr<IPlayer>> _players;
+    NetPlayerFactory                      factory{1234};
 
-    for (int i = 0; i < game_number; i++)
-        g.push_back(std::unique_ptr<GameArena>{new GameArena(
-            {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
-             player_ptr(new StandaloneNetPlayer(MorpionGame::P2_CHAR))})});
-
-    while (!done(g)) {
-        for (auto it = g.begin(); it != g.end(); it++)
-            it->get()->cycle_once();
+    while (1) {
+        done(arenas);
+        std::for_each(arenas.begin(), arenas.end(),
+                      [](GameArena &arena) { arena.cycle_once(); });
+        auto new_player = factory.create_one();
+        if (new_player) {
+            _players.push_back(std::move(new_player));
+            if (_players.size() % 2 == 0) {
+                int last_idx = _players.size() - 1;
+                arenas.emplace_back(std::move(_players[last_idx - 1]),
+                                    std::move(_players[last_idx]));
+                _players.pop_back();
+                _players.pop_back();
+            } else {
+                _players.back()->wait();
+            }
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
@@ -58,8 +69,8 @@ int main(int ac, char **av)
             Client cli;
             cli.client_loop();
         } else if ("local"sv == av[1]) {
-            GameArena g{{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
-                         player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
+            GameArena g{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
+                        player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))};
 
             while (!g.done()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -67,19 +78,15 @@ int main(int ac, char **av)
             }
         } else if ("host"sv == av[1]) {
             GameArena g{
-                {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
-                 player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))}};
+                player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
+                player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))};
 
             while (!g.done()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
                 g.cycle_once();
             }
         } else {
-            int game_number;
-            if (ac < 3 || !(std::stringstream(av[2]) >> game_number)
-                || game_number < 1)
-                throw std::runtime_error("main:third argument for server");
-            run_server(game_number);
+            run_server();
         }
 
     } catch (std::exception &e) {

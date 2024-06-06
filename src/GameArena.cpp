@@ -4,6 +4,8 @@
 #include <functional>
 #include <iostream>
 #include <thread>
+#include <utility>
+#include "MorpionGame.hpp"
 
 using func_on_2_players = std::function<void(IPlayer &, IPlayer &)>;
 
@@ -25,10 +27,13 @@ const std::unordered_map<MorpionGame::Status, func_on_2_players> STATUS_MAP = {
      }},
 };
 
-GameArena::GameArena(std::array<player_ptr, 2> players)
-    : _players{std::move(players)}
+GameArena::GameArena(player_ptr player1, player_ptr player2)
+    : _players{{std::move(player1), std::move(player2)}}
 {
     _current_player = (_game.status() == MorpionGame::Status::PXTurn ? 0 : 1);
+
+    _players[0]->set_sym(MorpionGame::P1_CHAR);
+    _players[1]->set_sym(MorpionGame::P2_CHAR);
 
     _players[0]->set_board_state(_game.array());
     _players[1]->set_board_state(_game.array());
@@ -41,6 +46,24 @@ GameArena::GameArena(std::array<player_ptr, 2> players)
     _players[!_current_player]->set_player_symbol();
     _players[_current_player]->ask_for_move();
 }
+
+// GameArena::GameArena(std::array<player_ptr, 2> players)
+//     : _players{std::move(players)}
+// {
+//     _current_player = (_game.status() == MorpionGame::Status::PXTurn ? 0 :
+//     1);
+//
+//     _players[0]->set_board_state(_game.array());
+//     _players[1]->set_board_state(_game.array());
+//
+//     if (_game.status() == MorpionGame::Status::PXTurn)
+//         _players[0]->set_turn(true);
+//     if (_game.status() == MorpionGame::Status::POTurn)
+//         _players[1]->set_turn(true);
+//
+//     _players[!_current_player]->set_player_symbol();
+//     _players[_current_player]->ask_for_move();
+// }
 
 void GameArena::cycle_once()
 {
