@@ -125,3 +125,8 @@ char GfxPlayer::get_sym()
 {
     return _sym;
 }
+
+void GfxPlayer::set_sym(char sym)
+{
+    _sym = sym;
+}

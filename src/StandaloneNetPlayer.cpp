@@ -10,7 +10,9 @@
 #include <string>
 
 StandaloneNetPlayer::StandaloneNetPlayer(char sym)
-    : _sym{sym}, _last_clock{std::chrono::steady_clock::now()}
+    : _sym{sym},
+      _sock{std::unique_ptr<sf::TcpSocket>(new sf::TcpSocket())},
+      _last_clock{std::chrono::steady_clock::now()}
 {
     int             res;
     std::string     str;
@@ -44,19 +46,10 @@ StandaloneNetPlayer::StandaloneNetPlayer(char sym)
     _send_on_sock(packet);
 }
 
-StandaloneNetPlayer::StandaloneNetPlayer(char                            sym,
-                                         std::unique_ptr<sf::TcpSocket> &sock)
-    : _sym{sym},
-      _sock(std::move(sock)),
-      _last_clock{std::chrono::steady_clock::now()}
+StandaloneNetPlayer::StandaloneNetPlayer(std::unique_ptr<sf::TcpSocket> &sock)
+    : _sock(std::move(sock)), _last_clock{std::chrono::steady_clock::now()}
 {
-    std::string str;
-
     _sect.add(*_sock);
-
-    sf::Packet packet;
-    packet << std::string("SET_SYM") << (_sym == 'x' ? 0 : 1);
-    _send_on_sock(packet);
 }
 
 StandaloneNetPlayer::~StandaloneNetPlayer()
@@ -211,4 +204,11 @@ bool StandaloneNetPlayer::_connection_closed()
     _last_clock = std::chrono::steady_clock::now();
 
     return (_send_on_sock() == sf::Socket::Disconnected);
+}
+
+void StandaloneNetPlayer::set_sym(char sym)
+{
+    _sym = sym;
+    sf::Packet packet;
+    packet << std::string("SET_SYM") << (_sym == 'x' ? 0 : 1);
 }

@@ -12,7 +12,7 @@
 class StandaloneNetPlayer : public IPlayer {
 public:
     StandaloneNetPlayer(char sym);
-    StandaloneNetPlayer(char sym, std::unique_ptr<sf::TcpSocket> &sock);
+    StandaloneNetPlayer(std::unique_ptr<sf::TcpSocket> &sock);
     ~StandaloneNetPlayer();
 
     void set_win() override;
@@ -26,6 +26,7 @@ public:
     void process_events() override;
     void set_player_symbol() override;
     char get_sym() override;
+    void set_sym(char sym) override;
     std::optional<unsigned int> get_move() override;
 
 private:

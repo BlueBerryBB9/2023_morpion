@@ -35,7 +35,7 @@ SRCS_TEST	+=	$(SRCS)
 
 OBJS_TEST	=	$(SRCS_TEST:.cpp=.o)
 
-CPPFLAGS	=	-W -Wextra -Wall -Isrc/ -std=c++20 -g
+CPPFLAGS	=	-W -Wextra -Wall -Iinclude/ -std=c++20 -g
 
 LDFLAGS		=	-lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
 

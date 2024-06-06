@@ -24,7 +24,7 @@ Client::Client() : _last_clock(std::chrono::steady_clock::now())
     }
 
     if (_sock.connect(sf::IpAddress("localhost"), res) != sf::Socket::Done)
-        throw std::runtime_error("ctor:listener:listen");
+        throw std::runtime_error("ctor:sock:connect");
 
     std::cout << "Socket connected" << std::endl;
 

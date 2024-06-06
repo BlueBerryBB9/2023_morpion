@@ -108,3 +108,8 @@ char TermPlayer::get_sym()
 {
     return _sym;
 }
+
+void TermPlayer::set_sym(char sym)
+{
+    _sym = sym;
+}

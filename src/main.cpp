@@ -30,6 +30,22 @@ bool done(std::vector<std::unique_ptr<GameArena>> &g)
     return g.empty();
 }
 
+void run_server(int game_number)
+{
+    std::vector<std::unique_ptr<GameArena>> g;
+
+    for (int i = 0; i < game_number; i++)
+        g.push_back(std::unique_ptr<GameArena>{new GameArena(
+            {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
+             player_ptr(new StandaloneNetPlayer(MorpionGame::P2_CHAR))})});
+
+    while (!done(g)) {
+        for (auto it = g.begin(); it != g.end(); it++)
+            it->get()->cycle_once();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
+
 int main(int ac, char **av)
 {
     try {
@@ -63,19 +79,7 @@ int main(int ac, char **av)
             if (ac < 3 || !(std::stringstream(av[2]) >> game_number)
                 || game_number < 1)
                 throw std::runtime_error("main:third argument for server");
-
-            std::vector<std::unique_ptr<GameArena>> g;
-
-            for (int i = 0; i < game_number; i++)
-                g.emplace_back(
-                    player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
-                    player_ptr(new StandaloneNetPlayer(MorpionGame::P2_CHAR)));
-
-            while (!done(g)) {
-                for (auto it = g.begin(); it != g.end(); it++)
-                    it->get()->cycle_once();
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            }
+            run_server(game_number);
         }
 
     } catch (std::exception &e) {

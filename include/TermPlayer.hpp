@@ -18,6 +18,7 @@ public:
     void process_events() override;
     void set_player_symbol() override;
     char get_sym() override;
+    void set_sym(char sym) override;
     std::optional<unsigned int> get_move() override;
 
 private:

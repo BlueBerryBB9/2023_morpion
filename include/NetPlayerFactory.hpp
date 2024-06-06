@@ -9,7 +9,7 @@ class NetPlayerFactory {
 public:
     NetPlayerFactory(int port);
 
-    std::unique_ptr<IPlayer> create_one(char sym);
+    std::unique_ptr<IPlayer> create_one();
 
 private:
     sf::TcpListener    _lstnr;
