@@ -1,4 +1,4 @@
-#include "../include/client.hpp"
+#include "client.hpp"
 #include <SFML/Network.hpp>
 #include <SFML/Network/Packet.hpp>
 #include <SFML/System/Time.hpp>
@@ -6,7 +6,7 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
-#include "../include/GfxPlayer.hpp"
+#include "GfxPlayer.hpp"
 
 Client::Client() : _last_clock(std::chrono::steady_clock::now())
 {

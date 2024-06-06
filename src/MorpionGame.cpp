@@ -1,4 +1,4 @@
-#include "../include/MorpionGame.hpp"
+#include "MorpionGame.hpp"
 #include <iostream>
 
 MorpionGame::MorpionGame(MorpionGame::StartWith start_player)

@@ -1,0 +1,26 @@
+#include "NetPlayerFactory.hpp"
+#include <SFML/Network/TcpSocket.hpp>
+#include <SFML/System/Time.hpp>
+#include <memory>
+#include "StandaloneNetPlayer.hpp"
+
+NetPlayerFactory::NetPlayerFactory(int port)
+{
+    _lstnr.setBlocking(false);
+    if (_lstnr.listen(port) != sf::Socket::Done)
+        throw std::runtime_error("ctor:listener:listen");
+    _slctr.add(_lstnr);
+}
+
+std::unique_ptr<IPlayer> NetPlayerFactory::create_one(char sym)
+{
+    std::unique_ptr<sf::TcpSocket> sock;
+    _slctr.wait(sf::milliseconds(50));
+    if (_slctr.isReady(_lstnr)) {
+        if (_lstnr.accept(*sock) != sf::Socket::Done)
+            throw std::runtime_error("createone:listener:accept");
+        return std::unique_ptr<IPlayer>(new StandaloneNetPlayer(sym, sock));
+    }
+
+    return nullptr;
+}

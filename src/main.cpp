@@ -1,20 +1,19 @@
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/Packet.hpp>
 #include <SFML/Network/TcpSocket.hpp>
-#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <thread>
-#include "../include/GameArena.hpp"
-#include "../include/GfxPlayer.hpp"
-#include "../include/IPlayer.hpp"
-#include "../include/MorpionGame.hpp"
-#include "../include/StandaloneNetPlayer.hpp"
-#include "../include/TermPlayer.hpp"
-#include "../include/client.hpp"
+#include "GameArena.hpp"
+#include "GfxPlayer.hpp"
+#include "IPlayer.hpp"
+#include "MorpionGame.hpp"
+#include "StandaloneNetPlayer.hpp"
+#include "TermPlayer.hpp"
+#include "client.hpp"
 
 using namespace std::literals;
 
@@ -68,10 +67,9 @@ int main(int ac, char **av)
             std::vector<std::unique_ptr<GameArena>> g;
 
             for (int i = 0; i < game_number; i++)
-                g.push_back(std::unique_ptr<GameArena>{new GameArena(
-                    {player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
-                     player_ptr(
-                         new StandaloneNetPlayer(MorpionGame::P2_CHAR))})});
+                g.emplace_back(
+                    player_ptr(new StandaloneNetPlayer(MorpionGame::P1_CHAR)),
+                    player_ptr(new StandaloneNetPlayer(MorpionGame::P2_CHAR)));
 
             while (!done(g)) {
                 for (auto it = g.begin(); it != g.end(); it++)

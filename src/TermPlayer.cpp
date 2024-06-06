@@ -1,4 +1,4 @@
-#include "../include/TermPlayer.hpp"
+#include "TermPlayer.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <chrono>
 #include <future>

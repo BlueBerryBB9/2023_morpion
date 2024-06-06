@@ -1,7 +1,6 @@
-#include "../include/GameArena.hpp"
+#include "GameArena.hpp"
 #include <array>
 #include <chrono>
-#include <exception>
 #include <functional>
 #include <iostream>
 #include <thread>

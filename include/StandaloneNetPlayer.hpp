@@ -6,11 +6,13 @@
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <chrono>
+#include <memory>
 #include "./IPlayer.hpp"
 
 class StandaloneNetPlayer : public IPlayer {
 public:
     StandaloneNetPlayer(char sym);
+    StandaloneNetPlayer(char sym, std::unique_ptr<sf::TcpSocket> &sock);
     ~StandaloneNetPlayer();
 
     void set_win() override;
@@ -33,13 +35,13 @@ private:
     sf::Socket::Status _send_on_sock();
     bool               _connection_closed();
 
-    std::optional<unsigned int> _move_made{std::nullopt};
-    bool                        _is_its_turn{false};
-    bool                        _can_ask_again{true};
-    bool                        _done{false};
-    char                        _sym;
-    sf::TcpSocket               _sock;
-    sf::SocketSelector          _sect;
+    std::optional<unsigned int>    _move_made{std::nullopt};
+    bool                           _is_its_turn{false};
+    bool                           _can_ask_again{true};
+    bool                           _done{false};
+    char                           _sym;
+    std::unique_ptr<sf::TcpSocket> _sock;
+    sf::SocketSelector             _sect;
 
     std::chrono::time_point<std::chrono::steady_clock> _last_clock;
 };

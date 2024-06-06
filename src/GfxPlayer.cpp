@@ -1,5 +1,4 @@
-#include "../include/GfxPlayer.hpp"
-#include <iostream>
+#include "GfxPlayer.hpp"
 #include <optional>
 
 GfxPlayer::GfxPlayer(char sym)
