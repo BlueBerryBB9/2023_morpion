@@ -8,7 +8,7 @@
 #include <thread>
 #include "../include/GfxPlayer.hpp"
 
-Client::Client()
+Client::Client() : _last_clock(std::chrono::steady_clock::now())
 {
     int         res;
     std::string str;
@@ -91,12 +91,17 @@ sf::Socket::Status Client::_send_on_sock()
 
 bool Client::_is_sock_done()
 {
-    static int i = 0;
-
-    // send packet only 1 time of 4 to avoid overwhelming the socket
-    i++;
-    if (i % 5 != 0)
+    if (!_started)
         return false;
+
+    std::chrono::time_point<std::chrono::steady_clock> now
+        = std::chrono::steady_clock::now();
+
+    if (now - _last_clock < std::chrono::seconds{2})
+        return false;
+
+    std::cout << "IN CLOCK" << std::endl;
+    _last_clock = std::chrono::steady_clock::now();
 
     return (_send_on_sock() == sf::Socket::Disconnected);
 }
@@ -111,6 +116,7 @@ void Client::client_loop()
         sect.wait(sf::milliseconds(50));
 
         if (sect.isReady(_sock)) {
+            _started = true;
             _sock.receive(packet);
             if (_parse_and_exec(packet)) {
                 std::this_thread::sleep_for(std::chrono::seconds(3));
