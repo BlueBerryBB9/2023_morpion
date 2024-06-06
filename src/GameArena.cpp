@@ -30,6 +30,11 @@ const std::unordered_map<MorpionGame::Status, func_on_2_players> STATUS_MAP = {
 GameArena::GameArena(player_ptr player1, player_ptr player2)
     : _players{{std::move(player1), std::move(player2)}}
 {
+    static int created = 0;
+    created++;
+    _id = created;
+    std::cout << "GameArena " << _id << " launched" << std::endl;
+
     _current_player = (_game.status() == MorpionGame::Status::PXTurn ? 0 : 1);
 
     _players[0]->set_sym(MorpionGame::P1_CHAR);
@@ -46,24 +51,6 @@ GameArena::GameArena(player_ptr player1, player_ptr player2)
     _players[!_current_player]->set_player_symbol();
     _players[_current_player]->ask_for_move();
 }
-
-// GameArena::GameArena(std::array<player_ptr, 2> players)
-//     : _players{std::move(players)}
-// {
-//     _current_player = (_game.status() == MorpionGame::Status::PXTurn ? 0 :
-//     1);
-//
-//     _players[0]->set_board_state(_game.array());
-//     _players[1]->set_board_state(_game.array());
-//
-//     if (_game.status() == MorpionGame::Status::PXTurn)
-//         _players[0]->set_turn(true);
-//     if (_game.status() == MorpionGame::Status::POTurn)
-//         _players[1]->set_turn(true);
-//
-//     _players[!_current_player]->set_player_symbol();
-//     _players[_current_player]->ask_for_move();
-// }
 
 void GameArena::cycle_once()
 {
@@ -134,6 +121,7 @@ void GameArena::_report_end()
         } else {
             std::cout << "Error : All _players exited";
         }
+        std::cout << "GameArena " << _id << " finished " << std::endl;
         return;
     }
 
@@ -143,7 +131,9 @@ void GameArena::_report_end()
     if (found_iter != STATUS_MAP.end())
         found_iter->second(*_players[0], *_players[1]);
     else
-        std::cerr << "the game hasn't ended properly\n";
+        std::cerr << "the game hasn't ended properly" << std::endl;
+
+    std::cout << "GameArena " << _id << " finished " << std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(3));
 }

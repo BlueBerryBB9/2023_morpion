@@ -32,6 +32,11 @@ Client::Client() : _last_clock(std::chrono::steady_clock::now())
     std::cout << "created gfx" << std::endl;
 }
 
+Client::~Client()
+{
+    _sock.disconnect();
+}
+
 const std::array<char, 9> Client::_convert_str_to_array(std::string str1)
 {
     int                 i;

@@ -13,7 +13,7 @@ using func_player = std::function<void(IPlayer &)>;
 class Client {
 public:
     Client();
-    ~Client() = default;
+    ~Client();
 
     void client_loop();
 

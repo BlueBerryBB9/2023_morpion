@@ -19,7 +19,7 @@ using namespace std::literals;
 
 using player_ptr = std::unique_ptr<IPlayer>;
 
-bool done(std::vector<GameArena> &g)
+void done(std::vector<GameArena> &g)
 {
     for (auto it = g.begin(); it != g.end();) {
         if (it->done())
@@ -27,7 +27,6 @@ bool done(std::vector<GameArena> &g)
         else
             ++it;
     }
-    return g.empty();
 }
 
 void run_server()
