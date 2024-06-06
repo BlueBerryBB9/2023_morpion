@@ -25,6 +25,7 @@ private:
     sf::TcpSocket             _sock;
     bool                      _played{false};
     player_ptr                _player;
+    bool                      _asked_for_move_already;
 
     // MAP is inside the class to permit lambda to access private variables
     const std::unordered_map<std::string, func_player> NO_ARGS_FUNCTIONS = {

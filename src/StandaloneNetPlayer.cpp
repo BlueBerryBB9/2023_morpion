@@ -2,11 +2,14 @@
 #include <SFML/Network.hpp>
 #include <SFML/Network/Packet.hpp>
 #include <SFML/System/Time.hpp>
+#include <chrono>
+#include <ctime>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 
-StandaloneNetPlayer::StandaloneNetPlayer(char sym) : _sym{sym}
+StandaloneNetPlayer::StandaloneNetPlayer(char sym)
+    : _sym{sym}, _last_clock{std::chrono::steady_clock::now()}
 {
     int             res;
     std::string     str;
@@ -95,14 +98,7 @@ void StandaloneNetPlayer::set_board_state(const std::array<char, 9> &board)
 
 bool StandaloneNetPlayer::is_done()
 {
-    static int i = 0;
-
-    // send packet only 1 time of 4 to avoid overwhelming the socket
-    i++;
-    if (i % 4 != 0)
-        return false;
-
-    return (_send_on_sock() == sf::Socket::Disconnected);
+    return _done;
 }
 
 void StandaloneNetPlayer::ask_for_move()
@@ -152,7 +148,10 @@ std::optional<int> StandaloneNetPlayer::_receive_on_sock()
     sf::Packet  packet;
     std::string func;
 
-    _sock.receive(packet);
+    if (_sock.receive(packet) == sf::Socket::Disconnected) {
+        _done = true;
+        return {};
+    }
 
     if (packet.getDataSize() == 0)
         return {};
@@ -168,7 +167,7 @@ void StandaloneNetPlayer::process_events()
 {
     _move_made.reset();
 
-    if (!_is_its_turn)
+    if (!_is_its_turn || _done)
         return;
     if (_can_ask_again)
         ask_for_move();
@@ -177,5 +176,23 @@ void StandaloneNetPlayer::process_events()
         _move_made = _receive_on_sock();
         if (_move_made)
             _can_ask_again = true;
+    } else {
+        if (_connection_closed()) {
+            _done = true;
+        }
     }
+}
+
+bool StandaloneNetPlayer::_connection_closed()
+{
+    std::chrono::time_point<std::chrono::steady_clock> now
+        = std::chrono::steady_clock::now();
+
+    if (now - _last_clock < std::chrono::seconds{2})
+        return false;
+
+    std::cout << "IN CLOCK" << std::endl;
+    _last_clock = std::chrono::steady_clock::now();
+
+    return (_send_on_sock() == sf::Socket::Disconnected);
 }

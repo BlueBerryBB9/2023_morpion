@@ -95,7 +95,7 @@ bool Client::_is_sock_done()
 
     // send packet only 1 time of 4 to avoid overwhelming the socket
     i++;
-    if (i % 4 != 0)
+    if (i % 5 != 0)
         return false;
 
     return (_send_on_sock() == sf::Socket::Disconnected);
@@ -129,4 +129,9 @@ void Client::client_loop()
             _played = true;
         }
     }
+
+    std::cout << "Game suddenly closed :"
+              << (_player->is_done() ? "window closed"
+                                     : "server closed connection")
+              << std::endl;
 }
