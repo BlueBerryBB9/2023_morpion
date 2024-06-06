@@ -2,6 +2,7 @@
 #define CLIENT_HPP
 
 #include <SFML/Network.hpp>
+#include <chrono>
 #include "../include/IPlayer.hpp"
 
 using namespace std::literals;
@@ -23,8 +24,11 @@ private:
     sf::Socket::Status        _send_on_sock(std::string str);
     sf::Socket::Status        _send_on_sock();
     sf::TcpSocket             _sock;
-    bool                      _played{false};
+    bool                      _played{true};
     player_ptr                _player;
+    bool                      _started{false};
+
+    std::chrono::time_point<std::chrono::steady_clock> _last_clock;
 
     // MAP is inside the class to permit lambda to access private variables
     const std::unordered_map<std::string, func_player> NO_ARGS_FUNCTIONS = {
