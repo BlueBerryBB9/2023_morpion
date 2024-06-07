@@ -33,7 +33,7 @@ void run_server()
 {
     std::vector<GameArena>                arenas;
     std::vector<std::unique_ptr<IPlayer>> _players;
-    NetPlayerFactory                      factory{1234};
+    NetPlayerFactory                      factory{53000};
 
     while (1) {
         done(arenas);

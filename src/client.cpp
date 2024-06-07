@@ -23,7 +23,10 @@ Client::Client() : _last_clock(std::chrono::steady_clock::now())
         std::cout << "Please give a port to connect on :" << std::endl;
     }
 
-    if (_sock.connect(sf::IpAddress("localhost"), res) != sf::Socket::Done)
+    std::cout << "Please give an IPAdress to connect on :" << std::endl;
+    std::cin >> str;
+
+    if (_sock.connect(str, res) != sf::Socket::Done)
         throw std::runtime_error("ctor:sock:connect");
 
     std::cout << "Socket connected" << std::endl;
