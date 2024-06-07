@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <optional>
@@ -26,6 +27,7 @@ public:
     void set_sym(char sym) override;
     void wait() override;
     void play_again() override;
+    void replay() override;
     std::optional<unsigned int> get_move() override;
 
 private:
@@ -40,4 +42,5 @@ private:
     bool                        _status_text_changed;
     bool                        _is_its_turn{false};
     char                        _sym;
+    bool                        _is_last_mv_ask_mv{false};
 };

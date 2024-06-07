@@ -49,4 +49,7 @@ public:
 
     virtual void play_again() = 0;
     // Server: "PLAY_AGAIN"
+
+    virtual void replay() = 0;
+    // Server: "PLAY_AGAIN"
 };

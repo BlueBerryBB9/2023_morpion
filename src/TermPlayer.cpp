@@ -6,6 +6,8 @@
 #include <optional>
 #include <sstream>
 
+using namespace std::string_view_literals;
+
 TermPlayer::~TermPlayer()
 {
     if (_future.valid())
@@ -35,6 +37,13 @@ std::optional<unsigned int> TermPlayer::get_move()
 void TermPlayer::process_events()
 {
     _move_made.reset();
+    if (_replay_mode) {
+        if (_future2.wait_for(std::chrono::milliseconds(100))
+            == std::future_status::ready) {
+            _is_replaying = _future2.get();
+            _replay_mode  = false;
+        }
+    }
     if (!_is_its_turn)
         return;
     if (_can_ask_again)
@@ -122,4 +131,27 @@ void TermPlayer::wait()
 void TermPlayer::play_again()
 {
     std::cout << "Play again !" << std::endl;
+}
+
+void TermPlayer::replay()
+{
+    std::cout << "Do you want to replay ? (y/n)" << std::endl;
+    std::cin.clear();
+
+    _future2 = std::async(std::launch::async, [&] {
+        std::string answer;
+
+        std::cin.clear();
+        getline(std::cin, answer);
+
+        while (answer != "y"sv && answer != "n"sv) {
+            std::cin.clear();
+            std::cin.ignore(256, '\n');
+            std::cout << "Do you want to replay ? (y/n)" << std::endl;
+        }
+
+        return answer[0];
+    });
+
+    _replay_mode = true;
 }

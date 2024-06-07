@@ -226,3 +226,10 @@ void StandaloneNetPlayer::play_again()
     packet << std::string("PLAY_AGAIN");
     _send_on_sock(packet);
 }
+
+void StandaloneNetPlayer::replay()
+{
+    sf::Packet packet;
+    packet << std::string("REPLAY");
+    _send_on_sock(packet);
+}

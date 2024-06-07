@@ -72,7 +72,9 @@ void GameArena::cycle_once()
     if (done())
         return;
 
-    if (_players_or_game_done())
+    if (_replay_mode) {
+    }
+    if (_players_done())
         return _report_end();
 
     _players[!_current_player]->process_events();
@@ -84,7 +86,15 @@ void GameArena::cycle_once()
             _players[0]->set_board_state(_game.array());
             _players[1]->set_board_state(_game.array());
 
-            if (_players_or_game_done())
+            if (_game_done()) {
+                _report_win();
+                _players[0]->replay();
+                _players[1]->replay();
+                _replay_mode = true;
+                return;
+            }
+
+            if (_players_done())
                 return _report_end();
 
             _players[0]->swap_turn();
@@ -108,7 +118,15 @@ void GameArena::run()
                 _players[0]->set_board_state(_game.array());
                 _players[1]->set_board_state(_game.array());
 
-                if (_players_or_game_done())
+                if (_game_done()) {
+                    _report_win();
+                    _players[0]->replay();
+                    _players[1]->replay();
+                    _replay_mode = true;
+                    return;
+                }
+
+                if (_players_done())
                     return _report_end();
 
                 _players[0]->swap_turn();
@@ -139,7 +157,10 @@ void GameArena::_report_end()
         std::cout << "GameArena " << _id << " finished " << std::endl;
         return;
     }
+}
 
+void GameArena::_report_win()
+{
     auto status{_game.status()};
     auto found_iter{STATUS_MAP.find(status)};
 
@@ -147,8 +168,6 @@ void GameArena::_report_end()
         found_iter->second(*_players[0], *_players[1]);
     else
         std::cerr << "the game hasn't ended properly" << std::endl;
-
-    std::cout << "GameArena " << _id << " finished " << std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(3));
 }
@@ -161,4 +180,22 @@ bool GameArena::done() const
 bool GameArena::_players_or_game_done()
 {
     return (_players[0]->is_done() || _players[1]->is_done() || _game.done());
+}
+
+bool GameArena::_players_done()
+{
+    return (_players[0]->is_done() || _players[1]->is_done());
+}
+
+bool GameArena::_game_done()
+{
+    return _game.done();
+}
+
+void GameArena::_set_done(bool done)
+{
+    if (done)
+        std::cout << "GameArena " << _id << " finished " << std::endl;
+
+    _is_done = true;
 }

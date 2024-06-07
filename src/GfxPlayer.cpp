@@ -100,8 +100,12 @@ bool GfxPlayer::is_done()
 
 void GfxPlayer::ask_for_move()
 {
+    if (_is_last_mv_ask_mv)
+        return play_again();
+
     _status_text.set_text(std::string{"your turn: "} + _sym);
     _update_window_if_needed();
+    _is_last_mv_ask_mv = true;
 }
 
 void GfxPlayer::set_turn(bool your_turn)
@@ -119,6 +123,7 @@ void GfxPlayer::set_player_symbol()
 {
     _status_text.set_text(std::string{"you are player: "} + _sym);
     _update_window_if_needed();
+    _is_last_mv_ask_mv = false;
 }
 
 char GfxPlayer::get_sym()
@@ -140,5 +145,12 @@ void GfxPlayer::wait()
 void GfxPlayer::play_again()
 {
     _status_text.set_text(std::string{"Play Again !"});
+    _update_window_if_needed();
+}
+
+void GfxPlayer::replay()
+{
+    _status_text.set_text(
+        std::string{"Do you want to play again ? (yes = x / no = o)"});
     _update_window_if_needed();
 }

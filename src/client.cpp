@@ -64,13 +64,6 @@ bool Client::_parse_and_exec(sf::Packet &packet)
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
 
-    if (_last_string == "ASK_FOR_MOVE"sv && _last_string == str) {
-        _player->play_again();
-        _played = false;
-        return false;
-    }
-    _last_string = str;
-
     auto it{NO_ARGS_FUNCTIONS.find(str)};
 
     if (it != NO_ARGS_FUNCTIONS.end()) {
