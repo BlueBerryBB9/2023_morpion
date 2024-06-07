@@ -136,3 +136,9 @@ void GfxPlayer::wait()
     _status_text.set_text(std::string{"Waiting another player..."});
     _update_window_if_needed();
 }
+
+void GfxPlayer::play_again()
+{
+    _status_text.set_text(std::string{"Play Again !"});
+    _update_window_if_needed();
+}

@@ -27,6 +27,7 @@ private:
     bool                      _played{true};
     player_ptr                _player;
     bool                      _started{false};
+    std::string               _last_string{""};
 
     std::chrono::time_point<std::chrono::steady_clock> _last_clock;
 

@@ -219,3 +219,10 @@ void StandaloneNetPlayer::wait()
     packet << std::string("WAIT");
     _send_on_sock(packet);
 }
+
+void StandaloneNetPlayer::play_again()
+{
+    sf::Packet packet;
+    packet << std::string("PLAY_AGAIN");
+    _send_on_sock(packet);
+}

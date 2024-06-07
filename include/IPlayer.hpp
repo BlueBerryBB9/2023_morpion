@@ -46,4 +46,7 @@ public:
 
     virtual void wait() = 0;
     // Server: "WAIT"
+
+    virtual void play_again() = 0;
+    // Server: "PLAY_AGAIN"
 };

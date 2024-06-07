@@ -26,7 +26,5 @@ private:
     MorpionGame               _game;
     unsigned int              _current_player;
     bool                      _is_done{false};
-    player_ptr                _player1;
-    player_ptr                _player2;
     std::array<player_ptr, 2> _players;
 };

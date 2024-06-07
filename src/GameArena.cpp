@@ -62,6 +62,8 @@ GameArena &GameArena::operator=(GameArena &&other)
     this->_players[1]     = std::move(other._players[1]);
     this->_game           = other._game;
     this->_current_player = other._current_player;
+    this->_id             = other._id;
+    this->_is_done        = other._is_done;
     return *this;
 }
 

@@ -118,3 +118,8 @@ void TermPlayer::wait()
 {
     std::cout << "Waiting for another Player..." << std::endl;
 }
+
+void TermPlayer::play_again()
+{
+    std::cout << "Play again !" << std::endl;
+}

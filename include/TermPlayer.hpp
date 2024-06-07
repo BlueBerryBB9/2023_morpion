@@ -20,6 +20,7 @@ public:
     char get_sym() override;
     void set_sym(char sym) override;
     void wait() override;
+    void play_again() override;
     std::optional<unsigned int> get_move() override;
 
 private:

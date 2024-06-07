@@ -64,7 +64,13 @@ bool Client::_parse_and_exec(sf::Packet &packet)
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
 
-    std::cout << "STR : " << str << std::endl;
+    if (_last_string == "ASK_FOR_MOVE"sv && _last_string == str) {
+        _player->play_again();
+        _played = false;
+        return false;
+    }
+    _last_string = str;
+
     auto it{NO_ARGS_FUNCTIONS.find(str)};
 
     if (it != NO_ARGS_FUNCTIONS.end()) {
@@ -113,7 +119,6 @@ bool Client::_is_sock_done()
     if (now - _last_clock < std::chrono::seconds{2})
         return false;
 
-    std::cout << "IN CLOCK" << std::endl;
     _last_clock = std::chrono::steady_clock::now();
 
     return (_send_on_sock() == sf::Socket::Disconnected);
@@ -141,7 +146,6 @@ void Client::client_loop()
         _player->process_events();
 
         if (_player->get_move() != std::nullopt && !_played) {
-            std::cout << "MOVE DONE" << std::endl;
             packet << _player->get_move().value();
             _sock.send(packet);
             packet.clear();
