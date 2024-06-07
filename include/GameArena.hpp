@@ -11,6 +11,8 @@ using player_ptr = std::unique_ptr<IPlayer>;
 class GameArena {
 public:
     GameArena(player_ptr player1, player_ptr player2);
+    GameArena(GameArena &&other);
+    GameArena &operator=(GameArena &&other);
 
     void cycle_once();
     void run();

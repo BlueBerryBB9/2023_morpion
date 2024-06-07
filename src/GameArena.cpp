@@ -52,6 +52,19 @@ GameArena::GameArena(player_ptr player1, player_ptr player2)
     _players[_current_player]->ask_for_move();
 }
 
+GameArena::GameArena(GameArena &&other)
+    : _players{std::move(other._players[0]), std::move(other._players[1])}
+{}
+
+GameArena &GameArena::operator=(GameArena &&other)
+{
+    this->_players[0]     = std::move(other._players[0]);
+    this->_players[1]     = std::move(other._players[1]);
+    this->_game           = other._game;
+    this->_current_player = other._current_player;
+    return *this;
+}
+
 void GameArena::cycle_once()
 {
     if (done())

@@ -54,8 +54,7 @@ StandaloneNetPlayer::StandaloneNetPlayer(std::unique_ptr<sf::TcpSocket> &sock)
 
 StandaloneNetPlayer::~StandaloneNetPlayer()
 {
-    if (_sock->getRemotePort() != 0)
-        _sock->disconnect();
+    _sock->disconnect();
 }
 
 sf::Socket::Status StandaloneNetPlayer::_send_on_sock(std::string str)
