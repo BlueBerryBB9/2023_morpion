@@ -7,6 +7,7 @@
 #include <iostream>
 #include <thread>
 #include "GfxPlayer.hpp"
+#include "IPlayer.hpp"
 
 Client::Client() : _last_clock(std::chrono::steady_clock::now())
 {
@@ -83,6 +84,12 @@ bool Client::_parse_and_exec(sf::Packet &packet)
             int res;
             packet >> res;
             _player->set_sym((res ? 'o' : 'x'));
+        } else if (str == "SET_PHASE"sv) {
+            int          res;
+            PLAYER_PHASE res2;
+            packet >> res;
+            res2 = static_cast<PLAYER_PHASE>(res);
+            _player->set_phase(res2);
         }
     }
     return false;
@@ -130,8 +137,8 @@ void Client::client_loop()
             _started = true;
             _sock.receive(packet);
             if (_parse_and_exec(packet)) {
-                std::this_thread::sleep_for(std::chrono::seconds(3));
-                return;
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+                continue;
             }
             packet.clear();
         }

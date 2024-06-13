@@ -21,7 +21,7 @@ public:
     void set_sym(char sym) override;
     void wait() override;
     void play_again() override;
-    void replay() override;
+    void set_phase(PLAYER_PHASE phase) override;
     std::optional<unsigned int> get_move() override;
 
 private:
@@ -33,4 +33,5 @@ private:
     char                        _sym;
     bool                        _replay_mode{false};
     bool                        _is_replaying{false};
+    PLAYER_PHASE                _phase{PLAYER_PHASE::waiting_opponent};
 };

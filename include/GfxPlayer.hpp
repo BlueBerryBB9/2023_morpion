@@ -27,7 +27,7 @@ public:
     void set_sym(char sym) override;
     void wait() override;
     void play_again() override;
-    void replay() override;
+    void set_phase(PLAYER_PHASE phase) override;
     std::optional<unsigned int> get_move() override;
 
 private:
@@ -42,5 +42,6 @@ private:
     bool                        _status_text_changed;
     bool                        _is_its_turn{false};
     char                        _sym;
-    bool                        _is_last_mv_ask_mv{false};
+    PLAYER_PHASE                _phase{PLAYER_PHASE::waiting_opponent};
+    // bool                        _is_last_mv_ask_mv{false};
 };

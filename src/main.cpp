@@ -2,6 +2,7 @@
 #include <SFML/Network/Packet.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <chrono>
+#include <cstdio>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -31,11 +32,26 @@ void done(std::vector<GameArena> &g)
 
 void run_server()
 {
+    int                                   port;
     std::vector<GameArena>                arenas;
     std::vector<std::unique_ptr<IPlayer>> _players;
-    NetPlayerFactory                      factory{53000};
+
+    std::cout << "NetPlayer Initialization" << std::endl;
+
+    std::cout << "Please give a port to listen on :" << std::endl;
+
+    while (!(std::cin >> port)) {
+        std::cin.clear();
+        std::cin.ignore(256, '\n');
+        std::cout << "Please give a port to listen on :" << std::endl;
+    }
+
+    NetPlayerFactory factory{port};
+    std::cout << "here\n";
 
     while (1) {
+        // if (!_players.empty())
+        //     _players[1]->is_done();
         done(arenas);
         std::for_each(arenas.begin(), arenas.end(),
                       [](GameArena &arena) { arena.cycle_once(); });
@@ -68,7 +84,7 @@ int main(int ac, char **av)
             Client cli;
             cli.client_loop();
         } else if ("local"sv == av[1]) {
-            GameArena g{player_ptr(new TermPlayer(MorpionGame::P1_CHAR)),
+            GameArena g{player_ptr(new GfxPlayer(MorpionGame::P1_CHAR)),
                         player_ptr(new GfxPlayer(MorpionGame::P2_CHAR))};
 
             while (!g.done()) {

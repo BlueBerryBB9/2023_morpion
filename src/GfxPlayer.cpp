@@ -1,5 +1,6 @@
 #include "GfxPlayer.hpp"
 #include <optional>
+#include "IPlayer.hpp"
 
 GfxPlayer::GfxPlayer(char sym)
     : _win{sf::VideoMode(300, 350), "Tic Tac Toe"},
@@ -16,9 +17,8 @@ GfxPlayer::GfxPlayer(char sym)
 
 GfxPlayer::~GfxPlayer()
 {
-    if (_win.isOpen()) {
+    if (_win.isOpen())
         _win.close();
-    }
 }
 
 void GfxPlayer::set_win()
@@ -73,24 +73,36 @@ void GfxPlayer::process_events()
             _win.close();
             return;
         }
-        if (_is_its_turn) {
-            _move_made.reset();
+        if (_phase == PLAYER_PHASE::playing) {
+            if (_is_its_turn) {
+                if (event.type == sf::Event::MouseButtonPressed
+                    && event.mouseButton.button == sf::Mouse::Left) {
+                    int grid_idx = event.mouseButton.x / 100
+                                   + (event.mouseButton.y / 100) * 3;
+                    if (grid_idx > 8) {
+                        _status_text.set_text("please click on the grid");
+                        _update_window_if_needed();
+                    } else {
+                        _move_made = grid_idx;
+                        std::cout << "MOVE " << _move_made.value() << std::endl;
+                    }
+                }
+            }
+        } else if (_phase == PLAYER_PHASE::replay) {
             if (event.type == sf::Event::MouseButtonPressed
                 && event.mouseButton.button == sf::Mouse::Left) {
                 int grid_idx = event.mouseButton.x / 100
                                + (event.mouseButton.y / 100) * 3;
-                // std::cout << "idx: " << grid_idx << std::endl;
-                if (grid_idx > 8) {
-                    _status_text.set_text("please click on the grid");
+                if (grid_idx != 3 && grid_idx != 5) {
+                    _status_text.set_text(
+                        "please click on the symbols : X (yes) / O (no)");
+                    _update_window_if_needed();
                 } else {
-                    // _status_text.set_text("");
-                    _move_made = grid_idx;
+                    _move_made = (grid_idx == 3 ? 1 : 0);
                 }
-                _update_window_if_needed();
             }
         }
     }
-    return;
 }
 
 bool GfxPlayer::is_done()
@@ -100,12 +112,23 @@ bool GfxPlayer::is_done()
 
 void GfxPlayer::ask_for_move()
 {
-    if (_is_last_mv_ask_mv)
-        return play_again();
+    // if (_is_last_mv_ask_mv)
+    //     return play_again();
 
-    _status_text.set_text(std::string{"your turn: "} + _sym);
-    _update_window_if_needed();
-    _is_last_mv_ask_mv = true;
+    std::cout << "here2\n";
+    if (_phase == PLAYER_PHASE::waiting_opponent) {
+        std::cout << "here4444\n";
+    }
+    if (_phase == PLAYER_PHASE::playing) {
+        std::cout << "here3\n";
+        _status_text.set_text(std::string{"your turn: "} + _sym);
+        _update_window_if_needed();
+        // _is_last_mv_ask_mv = true;
+    } else if (_phase == PLAYER_PHASE::replay) {
+        _status_text.set_text(
+            std::string{"Do you want to play again ? (yes = x / no = o)"});
+        set_board_state({'.', '.', '.', 'x', '.', 'o', '.', '.', '.'});
+    }
 }
 
 void GfxPlayer::set_turn(bool your_turn)
@@ -123,7 +146,7 @@ void GfxPlayer::set_player_symbol()
 {
     _status_text.set_text(std::string{"you are player: "} + _sym);
     _update_window_if_needed();
-    _is_last_mv_ask_mv = false;
+    // _is_last_mv_ask_mv = false;
 }
 
 char GfxPlayer::get_sym()
@@ -138,6 +161,11 @@ void GfxPlayer::set_sym(char sym)
 
 void GfxPlayer::wait()
 {
+    if (_phase == PLAYER_PHASE::replay) {
+        _status_text.set_text(std::string{"Waiting for the other player..."});
+        _update_window_if_needed();
+        return;
+    }
     _status_text.set_text(std::string{"Waiting another player..."});
     _update_window_if_needed();
 }
@@ -148,9 +176,7 @@ void GfxPlayer::play_again()
     _update_window_if_needed();
 }
 
-void GfxPlayer::replay()
+void GfxPlayer::set_phase(PLAYER_PHASE phase)
 {
-    _status_text.set_text(
-        std::string{"Do you want to play again ? (yes = x / no = o)"});
-    _update_window_if_needed();
+    _phase = phase;
 }

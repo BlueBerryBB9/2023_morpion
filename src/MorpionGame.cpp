@@ -98,3 +98,9 @@ bool MorpionGame::check_for_draw() const
     }
     return (true);
 }
+
+void MorpionGame::reset()
+{
+    _grid   = {'.', '.', '.', '.', '.', '.', '.', '.', '.'};
+    _status = Status::PXTurn;
+}

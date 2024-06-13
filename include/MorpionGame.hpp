@@ -28,6 +28,8 @@ public:
         return (_status != Status::POTurn && _status != Status::PXTurn);
     }
 
+    void reset();
+
 private:
     bool check_win_for(char player) const;
     bool check_for_draw() const;

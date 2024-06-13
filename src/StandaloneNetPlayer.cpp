@@ -8,6 +8,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include "IPlayer.hpp"
 
 StandaloneNetPlayer::StandaloneNetPlayer(char sym)
     : _sym{sym},
@@ -178,17 +179,24 @@ void StandaloneNetPlayer::process_events()
         return;
     }
 
-    if (!_is_its_turn)
-        return;
+    if (_phase == PLAYER_PHASE::playing) {
+        if (!_is_its_turn)
+            return;
 
-    if (_can_ask_again)
-        ask_for_move();
+        if (_can_ask_again)
+            ask_for_move();
 
-    _sect.wait(sf::milliseconds(50));
-    if (_sect.isReady(*_sock)) {
-        _move_made = _receive_on_sock();
-        if (_move_made)
-            _can_ask_again = true;
+        _sect.wait(sf::milliseconds(50));
+        if (_sect.isReady(*_sock)) {
+            _move_made = _receive_on_sock();
+            if (_move_made)
+                _can_ask_again = true;
+        }
+    } else if (_phase == PLAYER_PHASE::replay) {
+        _sect.wait(sf::milliseconds(50));
+        if (_sect.isReady(*_sock)) {
+            _move_made = _receive_on_sock();
+        }
     }
 }
 
@@ -227,9 +235,17 @@ void StandaloneNetPlayer::play_again()
     _send_on_sock(packet);
 }
 
-void StandaloneNetPlayer::replay()
+void StandaloneNetPlayer::set_phase(PLAYER_PHASE phase)
 {
+    _phase = phase;
     sf::Packet packet;
-    packet << std::string("REPLAY");
+    packet << std::string("SET_PHASE") << static_cast<int>(phase);
     _send_on_sock(packet);
 }
+
+// void StandaloneNetPlayer::replay()
+// {
+//     sf::Packet packet;
+//     packet << std::string("REPLAY");
+//     _send_on_sock(packet);
+// }

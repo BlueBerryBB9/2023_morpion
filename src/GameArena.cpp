@@ -5,6 +5,7 @@
 #include <iostream>
 #include <thread>
 #include <utility>
+#include "IPlayer.hpp"
 #include "MorpionGame.hpp"
 
 using func_on_2_players = std::function<void(IPlayer &, IPlayer &)>;
@@ -48,6 +49,9 @@ GameArena::GameArena(player_ptr player1, player_ptr player2)
     if (_game.status() == MorpionGame::Status::POTurn)
         _players[1]->set_turn(true);
 
+    _players[!_current_player]->set_phase(PLAYER_PHASE::playing);
+    _players[_current_player]->set_phase(PLAYER_PHASE::playing);
+
     _players[!_current_player]->set_player_symbol();
     _players[_current_player]->ask_for_move();
 }
@@ -64,6 +68,8 @@ GameArena &GameArena::operator=(GameArena &&other)
     this->_current_player = other._current_player;
     this->_id             = other._id;
     this->_is_done        = other._is_done;
+    this->_phase          = other._phase;
+    this->_replay         = other._replay;
     return *this;
 }
 
@@ -72,40 +78,16 @@ void GameArena::cycle_once()
     if (done())
         return;
 
-    if (_replay_mode) {
-    }
     if (_players_done())
         return _report_end();
 
     _players[!_current_player]->process_events();
     _players[_current_player]->process_events();
 
-    if (_players[_current_player]->get_move())
-        if (_game.play(_players[_current_player]->get_sym(),
-                       *_players[_current_player]->get_move())) {
-            _players[0]->set_board_state(_game.array());
-            _players[1]->set_board_state(_game.array());
-
-            if (_game_done()) {
-                _report_win();
-                _players[0]->replay();
-                _players[1]->replay();
-                _replay_mode = true;
-                return;
-            }
-
-            if (_players_done())
-                return _report_end();
-
-            _players[0]->swap_turn();
-            _players[1]->swap_turn();
-            _current_player = !_current_player;
-
-            _players[!_current_player]->set_player_symbol();
-            _players[_current_player]->ask_for_move();
-        }
+    _play();
 }
 
+// NOT DONE
 void GameArena::run()
 {
     while (!_players_or_game_done()) {
@@ -120,9 +102,8 @@ void GameArena::run()
 
                 if (_game_done()) {
                     _report_win();
-                    _players[0]->replay();
-                    _players[1]->replay();
-                    _replay_mode = true;
+                    // _players[0]->replay();
+                    // _players[1]->replay();
                     return;
                 }
 
@@ -140,6 +121,52 @@ void GameArena::run()
     return _report_end();
 }
 
+void GameArena::_play()
+{
+    if (_phase == PLAYER_PHASE::playing) {
+        if (_players[_current_player]->get_move()) {
+            if (_game.play(_players[_current_player]->get_sym(),
+                           *_players[_current_player]->get_move())) {
+                _players[0]->set_board_state(_game.array());
+                _players[1]->set_board_state(_game.array());
+
+                if (_game_done()) {
+                    _report_win();
+                    _phase = PLAYER_PHASE::replay;
+                    _players[0]->set_phase(_phase);
+                    _players[0]->ask_for_move();
+                    _players[1]->set_phase(_phase);
+                    _players[1]->ask_for_move();
+                    return;
+                }
+
+                if (_players_done())
+                    return _report_end();
+
+                _players[0]->swap_turn();
+                _players[1]->swap_turn();
+                _current_player = !_current_player;
+
+                _players[!_current_player]->set_player_symbol();
+                _players[_current_player]->ask_for_move();
+            }
+        }
+    } else if (_phase == PLAYER_PHASE::replay) {
+        if (_players_replay()) {
+            if (_phase == PLAYER_PHASE::playing)
+                _reset();
+            else
+                _is_done = true;
+            return;
+        }
+    }
+}
+
+bool GameArena::done() const
+{
+    return _is_done;
+}
+
 void GameArena::_report_end()
 {
     _is_done = true;
@@ -152,7 +179,7 @@ void GameArena::_report_end()
             std::cout << "Error : Player " << MorpionGame::P2_CHAR
                       << " exited !" << std::endl;
         } else {
-            std::cout << "Error : All _players exited";
+            std::cout << "Error : All _players exited" << std::endl;
         }
         std::cout << "GameArena " << _id << " finished " << std::endl;
         return;
@@ -169,12 +196,7 @@ void GameArena::_report_win()
     else
         std::cerr << "the game hasn't ended properly" << std::endl;
 
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-}
-
-bool GameArena::done() const
-{
-    return _is_done;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
 bool GameArena::_players_or_game_done()
@@ -198,4 +220,68 @@ void GameArena::_set_done(bool done)
         std::cout << "GameArena " << _id << " finished " << std::endl;
 
     _is_done = true;
+}
+
+bool GameArena::_players_replay()
+{
+    if (_players[0]->get_move() && _replay != PLAYER_REPLAY::P1) {
+        _players[0]->wait();
+        if (_players[0]->get_move().value() == 0) {
+            _phase = PLAYER_PHASE::end;
+            // _players[1].replay_refused();
+            return true;
+        } else {
+            if (_replay == PLAYER_REPLAY::P2) {
+                _phase = PLAYER_PHASE::playing;
+                return true;
+            } else {
+                _replay = PLAYER_REPLAY::P1;
+                return false;
+            }
+        }
+    } else if (_players[1]->get_move() && _replay != PLAYER_REPLAY::P2) {
+        _players[1]->wait();
+        if (_players[1]->get_move().value() == 0) {
+            _phase = PLAYER_PHASE::end;
+            // _players[0].replay_refused();
+            return true;
+        } else {
+            if (_replay == PLAYER_REPLAY::P1) {
+                _phase = PLAYER_PHASE::playing;
+                return true;
+            } else {
+                _replay = PLAYER_REPLAY::P2;
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+void GameArena::_reset()
+{
+    _game.reset();
+    _replay = PLAYER_REPLAY::NONE;
+
+    _current_player = (_game.status() == MorpionGame::Status::PXTurn ? 0 : 1);
+
+    _players[0]->set_sym(MorpionGame::P1_CHAR);
+    _players[1]->set_sym(MorpionGame::P2_CHAR);
+
+    _players[0]->set_phase(PLAYER_PHASE::playing);
+    _players[1]->set_phase(PLAYER_PHASE::playing);
+
+    _players[0]->set_board_state(_game.array());
+    _players[1]->set_board_state(_game.array());
+
+    if (_game.status() == MorpionGame::Status::PXTurn) {
+        _players[0]->set_turn(true);
+        _players[1]->set_turn(false);
+    } else {
+        _players[1]->set_turn(true);
+        _players[0]->set_turn(false);
+    }
+
+    _players[!_current_player]->set_player_symbol();
+    _players[_current_player]->ask_for_move();
 }

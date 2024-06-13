@@ -29,7 +29,7 @@ public:
     void set_sym(char sym) override;
     void wait() override;
     void play_again() override;
-    void replay() override;
+    void set_phase(PLAYER_PHASE phase) override;
     std::optional<unsigned int> get_move() override;
 
 private:
@@ -46,6 +46,7 @@ private:
     char                           _sym;
     std::unique_ptr<sf::TcpSocket> _sock;
     sf::SocketSelector             _sect;
+    PLAYER_PHASE                   _phase{PLAYER_PHASE::waiting_opponent};
 
     std::chrono::time_point<std::chrono::steady_clock> _last_clock;
 };

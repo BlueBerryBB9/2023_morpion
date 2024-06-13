@@ -5,6 +5,7 @@
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include "IPlayer.hpp"
 
 using namespace std::string_view_literals;
 
@@ -133,25 +134,30 @@ void TermPlayer::play_again()
     std::cout << "Play again !" << std::endl;
 }
 
-void TermPlayer::replay()
+void TermPlayer::set_phase(PLAYER_PHASE phase)
 {
-    std::cout << "Do you want to replay ? (y/n)" << std::endl;
-    std::cin.clear();
-
-    _future2 = std::async(std::launch::async, [&] {
-        std::string answer;
-
-        std::cin.clear();
-        getline(std::cin, answer);
-
-        while (answer != "y"sv && answer != "n"sv) {
-            std::cin.clear();
-            std::cin.ignore(256, '\n');
-            std::cout << "Do you want to replay ? (y/n)" << std::endl;
-        }
-
-        return answer[0];
-    });
-
-    _replay_mode = true;
+    _phase = phase;
 }
+
+// void TermPlayer::replay()
+// {
+//     std::cout << "Do you want to replay ? (y/n)" << std::endl;
+//     std::cin.clear();
+//
+//     _future2 = std::async(std::launch::async, [&] {
+//         std::string answer;
+//
+//         std::cin.clear();
+//         getline(std::cin, answer);
+//
+//         while (answer != "y"sv && answer != "n"sv) {
+//             std::cin.clear();
+//             std::cin.ignore(256, '\n');
+//             std::cout << "Do you want to replay ? (y/n)" << std::endl;
+//         }
+//
+//         return answer[0];
+//     });
+//
+//     _replay_mode = true;
+// }

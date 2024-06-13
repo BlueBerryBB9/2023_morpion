@@ -1,6 +1,9 @@
 #pragma once
+
 #include <array>
 #include <optional>
+
+enum class PLAYER_PHASE { waiting_opponent = 0, playing, replay, end };
 
 class IPlayer {
 public:
@@ -30,7 +33,7 @@ public:
     virtual void ask_for_move() = 0;
     // Server: "ASK_FOR_MOVE"
 
-    virtual void set_turn(bool yout_turn) = 0;
+    virtual void set_turn(bool your_turn) = 0;
     // Server: "SET_TURN" + "0" or "1"
 
     virtual void swap_turn() = 0;
@@ -50,6 +53,5 @@ public:
     virtual void play_again() = 0;
     // Server: "PLAY_AGAIN"
 
-    virtual void replay() = 0;
-    // Server: "PLAY_AGAIN"
+    virtual void set_phase(PLAYER_PHASE phase) = 0;
 };
