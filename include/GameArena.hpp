@@ -19,6 +19,7 @@ public:
     GameArena(player_ptr player1, player_ptr player2);
     GameArena(GameArena &&other);
     GameArena &operator=(GameArena &&other);
+    ~GameArena();
 
     void cycle_once();
     void run();

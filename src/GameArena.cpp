@@ -73,6 +73,11 @@ GameArena &GameArena::operator=(GameArena &&other)
     return *this;
 }
 
+GameArena::~GameArena()
+{
+    std::cout << "GameArena " << _id << " finished !" << std::endl;
+}
+
 void GameArena::cycle_once()
 {
     if (done())
@@ -153,9 +158,10 @@ void GameArena::_play()
         }
     } else if (_phase == PLAYER_PHASE::replay) {
         if (_players_replay()) {
-            if (_phase == PLAYER_PHASE::playing)
+            if (_phase == PLAYER_PHASE::playing) {
                 _reset();
-            else
+                std::cout << "went here !!!!\n";
+            } else
                 _is_done = true;
             return;
         }
@@ -181,7 +187,6 @@ void GameArena::_report_end()
         } else {
             std::cout << "Error : All _players exited" << std::endl;
         }
-        std::cout << "GameArena " << _id << " finished " << std::endl;
         return;
     }
 }
@@ -216,10 +221,7 @@ bool GameArena::_game_done()
 
 void GameArena::_set_done(bool done)
 {
-    if (done)
-        std::cout << "GameArena " << _id << " finished " << std::endl;
-
-    _is_done = true;
+    _is_done = done;
 }
 
 bool GameArena::_players_replay()
@@ -278,8 +280,8 @@ void GameArena::_reset()
         _players[0]->set_turn(true);
         _players[1]->set_turn(false);
     } else {
-        _players[1]->set_turn(true);
         _players[0]->set_turn(false);
+        _players[1]->set_turn(true);
     }
 
     _players[!_current_player]->set_player_symbol();

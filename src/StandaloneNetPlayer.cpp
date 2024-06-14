@@ -112,7 +112,7 @@ bool StandaloneNetPlayer::is_done()
 
 void StandaloneNetPlayer::ask_for_move()
 {
-    if (_can_ask_again) {
+    if (_can_ask_again || _phase == PLAYER_PHASE::replay) {
         _send_on_sock("ASK_FOR_MOVE");
         _can_ask_again = false;
     }
@@ -195,7 +195,8 @@ void StandaloneNetPlayer::process_events()
     } else if (_phase == PLAYER_PHASE::replay) {
         _sect.wait(sf::milliseconds(50));
         if (_sect.isReady(*_sock)) {
-            _move_made = _receive_on_sock();
+            _move_made     = _receive_on_sock();
+            _can_ask_again = true;
         }
     }
 }

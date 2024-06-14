@@ -84,7 +84,6 @@ void GfxPlayer::process_events()
                         _update_window_if_needed();
                     } else {
                         _move_made = grid_idx;
-                        std::cout << "MOVE " << _move_made.value() << std::endl;
                     }
                 }
             }
@@ -95,7 +94,7 @@ void GfxPlayer::process_events()
                                + (event.mouseButton.y / 100) * 3;
                 if (grid_idx != 3 && grid_idx != 5) {
                     _status_text.set_text(
-                        "please click on the symbols : X (yes) / O (no)");
+                        "please click on the symbols :\nX (yes) / O (no)");
                     _update_window_if_needed();
                 } else {
                     _move_made = (grid_idx == 3 ? 1 : 0);
@@ -115,18 +114,13 @@ void GfxPlayer::ask_for_move()
     // if (_is_last_mv_ask_mv)
     //     return play_again();
 
-    std::cout << "here2\n";
-    if (_phase == PLAYER_PHASE::waiting_opponent) {
-        std::cout << "here4444\n";
-    }
     if (_phase == PLAYER_PHASE::playing) {
-        std::cout << "here3\n";
         _status_text.set_text(std::string{"your turn: "} + _sym);
         _update_window_if_needed();
         // _is_last_mv_ask_mv = true;
     } else if (_phase == PLAYER_PHASE::replay) {
         _status_text.set_text(
-            std::string{"Do you want to play again ? (yes = x / no = o)"});
+            std::string{"Do you want to play again ?\n(yes = x / no = o)"});
         set_board_state({'.', '.', '.', 'x', '.', 'o', '.', '.', '.'});
     }
 }

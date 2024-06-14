@@ -65,6 +65,8 @@ bool Client::_parse_and_exec(sf::Packet &packet)
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
 
+    std::cout << "STR :" << str << std::endl;
+
     auto it{NO_ARGS_FUNCTIONS.find(str)};
 
     if (it != NO_ARGS_FUNCTIONS.end()) {
