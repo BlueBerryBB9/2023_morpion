@@ -3,7 +3,7 @@
 #include "IPlayer.hpp"
 
 GfxPlayer::GfxPlayer(char sym)
-    : _win{sf::VideoMode(300, 350), "Tic Tac Toe"},
+    : _win{sf::VideoMode(300, 400), "Tic Tac Toe"},
       _grid_text_changed{true},
       _status_text_changed{true},
       _sym{sym}

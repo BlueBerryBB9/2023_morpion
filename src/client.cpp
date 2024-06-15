@@ -4,34 +4,30 @@
 #include <SFML/System/Time.hpp>
 #include <array>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 #include <thread>
 #include "GfxPlayer.hpp"
 #include "IPlayer.hpp"
 
-Client::Client() : _last_clock(std::chrono::steady_clock::now())
+Client::Client(int ac, char **av)
+    : _last_clock(std::chrono::steady_clock::now())
 {
-    int         res;
-    std::string str;
-
     std::cout << "Initializing client" << std::endl;
 
-    std::cout << "Please give a port to connect on :" << std::endl;
+    if (ac < 4)
+        throw std::runtime_error("client:not enough arguments");
 
-    while (!(std::cin >> res)) {
-        std::cin.clear();
-        std::cin.ignore(256, '\n');
-        std::cout << "Please give a port to connect on :" << std::endl;
-    }
+    if (!atoi(av[3]))
+        throw std::runtime_error("client:port not valid");
 
-    std::cout << "Please give an IPAdress to connect on :" << std::endl;
-    std::cin >> str;
+    std::cout << "Listening on ip : [" << av[2] << "] and port : ["
+              << atoi(av[3]) << "]" << std::endl;
 
-    std::cout << "Listening on ip : [" << str << "] and port : [" << res << "]"
-              << std::endl;
-
-    if (_sock.connect(str, res, sf::seconds(1)) != sf::Socket::Done)
-        throw std::runtime_error("ctor:sock:connect");
+    if (_sock.connect(av[2], atoi(av[3]), sf::seconds(1)) != sf::Socket::Done)
+        throw std::runtime_error(
+            "ctor:sock:connect -> check the given port or address is valid");
 
     std::cout << "Socket connected" << std::endl;
 
@@ -65,8 +61,6 @@ bool Client::_parse_and_exec(sf::Packet &packet)
     if (!(packet >> str))
         throw std::runtime_error("exec_function:packet_str");
 
-    std::cout << "STR :" << str << std::endl;
-
     auto it{NO_ARGS_FUNCTIONS.find(str)};
 
     if (it != NO_ARGS_FUNCTIONS.end()) {
@@ -92,6 +86,7 @@ bool Client::_parse_and_exec(sf::Packet &packet)
             packet >> res;
             res2 = static_cast<PLAYER_PHASE>(res);
             _player->set_phase(res2);
+            _phase = res2;
         }
     }
     return false;
@@ -152,6 +147,9 @@ void Client::client_loop()
             _sock.send(packet);
             packet.clear();
             _played = true;
+            if (_phase == PLAYER_PHASE::replay
+                && _player->get_move().value() == 0)
+                return;
         }
     }
 

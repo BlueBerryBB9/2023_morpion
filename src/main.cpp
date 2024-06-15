@@ -47,7 +47,6 @@ void run_server()
     }
 
     NetPlayerFactory factory{port};
-    std::cout << "here\n";
 
     while (1) {
         // if (!_players.empty())
@@ -81,7 +80,7 @@ int main(int ac, char **av)
             && "server"sv != av[1])
             throw std::runtime_error("main:second argument wrong");
         if ("client"sv == av[1]) {
-            Client cli;
+            Client cli(ac, av);
             cli.client_loop();
         } else if ("local"sv == av[1]) {
             GameArena g{player_ptr(new GfxPlayer(MorpionGame::P1_CHAR)),
@@ -105,6 +104,10 @@ int main(int ac, char **av)
         }
 
     } catch (std::exception &e) {
-        std::cout << "Game Stopped Suddenly :" << e.what() << std::endl;
+        std::cout << "Game Stopped Suddenly :" << e.what() << std::endl
+                  << std::endl
+                  << "Pattern : ./gfx.out [mode = local/client/server] "
+                     "[IpAddress = e.g. 127.0.0.1] [port = e.g. 1234]"
+                  << std::endl;
     }
 }

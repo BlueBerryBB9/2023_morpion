@@ -1,2 +1,2 @@
 current_tasks :
-    - Finishing revenge feature on TD5
+    - Verify if terminal local player still works on a gameArena

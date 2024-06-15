@@ -158,10 +158,9 @@ void GameArena::_play()
         }
     } else if (_phase == PLAYER_PHASE::replay) {
         if (_players_replay()) {
-            if (_phase == PLAYER_PHASE::playing) {
+            if (_phase == PLAYER_PHASE::playing)
                 _reset();
-                std::cout << "went here !!!!\n";
-            } else
+            else
                 _is_done = true;
             return;
         }
@@ -227,7 +226,6 @@ void GameArena::_set_done(bool done)
 bool GameArena::_players_replay()
 {
     if (_players[0]->get_move() && _replay != PLAYER_REPLAY::P1) {
-        _players[0]->wait();
         if (_players[0]->get_move().value() == 0) {
             _phase = PLAYER_PHASE::end;
             // _players[1].replay_refused();
@@ -238,11 +236,11 @@ bool GameArena::_players_replay()
                 return true;
             } else {
                 _replay = PLAYER_REPLAY::P1;
+                _players[0]->wait();
                 return false;
             }
         }
     } else if (_players[1]->get_move() && _replay != PLAYER_REPLAY::P2) {
-        _players[1]->wait();
         if (_players[1]->get_move().value() == 0) {
             _phase = PLAYER_PHASE::end;
             // _players[0].replay_refused();
@@ -253,6 +251,7 @@ bool GameArena::_players_replay()
                 return true;
             } else {
                 _replay = PLAYER_REPLAY::P2;
+                _players[1]->wait();
                 return false;
             }
         }

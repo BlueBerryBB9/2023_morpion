@@ -3,6 +3,8 @@
 
 #include <SFML/Network.hpp>
 #include <chrono>
+#include <functional>
+#include <unordered_map>
 #include "../include/IPlayer.hpp"
 
 using namespace std::literals;
@@ -12,7 +14,7 @@ using func_player = std::function<void(IPlayer &)>;
 
 class Client {
 public:
-    Client();
+    Client(int ac, char **av);
     ~Client();
 
     void client_loop();
@@ -27,6 +29,7 @@ private:
     bool                      _played{true};
     player_ptr                _player;
     bool                      _started{false};
+    PLAYER_PHASE              _phase{PLAYER_PHASE::waiting_opponent};
 
     std::chrono::time_point<std::chrono::steady_clock> _last_clock;
 
