@@ -1,12 +1,12 @@
 # 2023_morpion project
 
-## General details
+## General details :
 - Used Languages : C++ -> Graphical with Lib SFML
 - Time : 6 weeks
 - Used Softwares : Neovim / ArchLinux / clang++
 - Teams size : 1 person
 
-## Context
+## Context :
 - During my second year at 89, the goal was to create a Morpion game that could run online, by creating a servers and allow players to connect online and play through the network.
 - You have different play mode : 
   - in local with terminal and graphical (window) player.
