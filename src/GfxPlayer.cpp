@@ -1,9 +1,9 @@
-#include "../include/GfxPlayer.hpp"
-#include <iostream>
+#include "GfxPlayer.hpp"
 #include <optional>
+#include "IPlayer.hpp"
 
 GfxPlayer::GfxPlayer(char sym)
-    : _win{sf::VideoMode(300, 350), "Tic Tac Toe"},
+    : _win{sf::VideoMode(300, 400), "Tic Tac Toe"},
       _grid_text_changed{true},
       _status_text_changed{true},
       _sym{sym}
@@ -17,9 +17,8 @@ GfxPlayer::GfxPlayer(char sym)
 
 GfxPlayer::~GfxPlayer()
 {
-    if (_win.isOpen()) {
+    if (_win.isOpen())
         _win.close();
-    }
 }
 
 void GfxPlayer::set_win()
@@ -66,6 +65,7 @@ void GfxPlayer::process_events()
 {
     sf::Event event;
 
+    _move_made.reset();
     while (_win.pollEvent(event)) {
         if (event.type == sf::Event::Closed
             || (event.type == sf::Event::KeyPressed
@@ -73,24 +73,35 @@ void GfxPlayer::process_events()
             _win.close();
             return;
         }
-        if (_is_its_turn) {
-            _move_made.reset();
+        if (_phase == PLAYER_PHASE::playing) {
+            if (_is_its_turn) {
+                if (event.type == sf::Event::MouseButtonPressed
+                    && event.mouseButton.button == sf::Mouse::Left) {
+                    int grid_idx = event.mouseButton.x / 100
+                                   + (event.mouseButton.y / 100) * 3;
+                    if (grid_idx > 8) {
+                        _status_text.set_text("please click on the grid");
+                        _update_window_if_needed();
+                    } else {
+                        _move_made = grid_idx;
+                    }
+                }
+            }
+        } else if (_phase == PLAYER_PHASE::replay) {
             if (event.type == sf::Event::MouseButtonPressed
                 && event.mouseButton.button == sf::Mouse::Left) {
                 int grid_idx = event.mouseButton.x / 100
                                + (event.mouseButton.y / 100) * 3;
-                // std::cout << "idx: " << grid_idx << std::endl;
-                if (grid_idx > 8) {
-                    _status_text.set_text("please click on the grid");
+                if (grid_idx != 3 && grid_idx != 5) {
+                    _status_text.set_text(
+                        "please click on the symbols :\nX (yes) / O (no)");
+                    _update_window_if_needed();
                 } else {
-                    // _status_text.set_text("");
-                    _move_made = grid_idx;
+                    _move_made = (grid_idx == 3 ? 1 : 0);
                 }
-                _update_window_if_needed();
             }
         }
     }
-    return;
 }
 
 bool GfxPlayer::is_done()
@@ -100,8 +111,18 @@ bool GfxPlayer::is_done()
 
 void GfxPlayer::ask_for_move()
 {
-    _status_text.set_text(std::string{"your turn: "} + _sym);
-    _update_window_if_needed();
+    // if (_is_last_mv_ask_mv)
+    //     return play_again();
+
+    if (_phase == PLAYER_PHASE::playing) {
+        _status_text.set_text(std::string{"your turn: "} + _sym);
+        _update_window_if_needed();
+        // _is_last_mv_ask_mv = true;
+    } else if (_phase == PLAYER_PHASE::replay) {
+        _status_text.set_text(
+            std::string{"Do you want to play again ?\n(yes = x / no = o)"});
+        set_board_state({'.', '.', '.', 'x', '.', 'o', '.', '.', '.'});
+    }
 }
 
 void GfxPlayer::set_turn(bool your_turn)
@@ -119,9 +140,37 @@ void GfxPlayer::set_player_symbol()
 {
     _status_text.set_text(std::string{"you are player: "} + _sym);
     _update_window_if_needed();
+    // _is_last_mv_ask_mv = false;
 }
 
 char GfxPlayer::get_sym()
 {
     return _sym;
+}
+
+void GfxPlayer::set_sym(char sym)
+{
+    _sym = sym;
+}
+
+void GfxPlayer::wait()
+{
+    if (_phase == PLAYER_PHASE::replay) {
+        _status_text.set_text(std::string{"Waiting for the other player..."});
+        _update_window_if_needed();
+        return;
+    }
+    _status_text.set_text(std::string{"Waiting another player..."});
+    _update_window_if_needed();
+}
+
+void GfxPlayer::play_again()
+{
+    _status_text.set_text(std::string{"Play Again !"});
+    _update_window_if_needed();
+}
+
+void GfxPlayer::set_phase(PLAYER_PHASE phase)
+{
+    _phase = phase;
 }

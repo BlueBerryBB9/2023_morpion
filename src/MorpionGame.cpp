@@ -1,4 +1,4 @@
-#include "../include/MorpionGame.hpp"
+#include "MorpionGame.hpp"
 #include <iostream>
 
 MorpionGame::MorpionGame(MorpionGame::StartWith start_player)
@@ -97,4 +97,10 @@ bool MorpionGame::check_for_draw() const
             return (false);
     }
     return (true);
+}
+
+void MorpionGame::reset()
+{
+    _grid   = {'.', '.', '.', '.', '.', '.', '.', '.', '.'};
+    _status = Status::PXTurn;
 }
