@@ -15,7 +15,7 @@
 ## Skills : 
 - Use SFML library.
 - Organise classes.
-- Learn a bit of how game archistructure works.
+- Learn a bit of how game architecture works.
 - Have a Smooth game even when you play on network by reducing latency.
 
 ## Feelings on the project :
