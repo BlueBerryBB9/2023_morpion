@@ -24,3 +24,4 @@
 - Cool because you can play it with your mates on the network.
 
 ### Images of the game :
+![local](Screenshot from 2024-06-27 11-48-16.png)
